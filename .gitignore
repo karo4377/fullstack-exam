@@ -1,0 +1,25 @@
+### dependencies
+**/node_modules/
+
+### next.js
+**/.next/
+**/out/
+
+### builds
+**/dist/
+**/build/
+**/coverage/
+
+### logs
+**/*.log
+
+### env (keep examples)
+**/.env
+**/.env.*
+!**/.env.example
+
+### uploads / generated runtime files
+**/uploads/
+
+### OS
+.DS_Store
