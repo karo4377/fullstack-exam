@@ -1,0 +1,116 @@
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+export async function api<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const hasBody = options.body != null && options.body !== '';
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string>),
+  };
+  if (hasBody && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      credentials: 'include',
+      headers,
+    });
+  } catch (e) {
+    const msg = e instanceof Error && e.message === 'Failed to fetch'
+      ? `Cannot reach the API at ${API_BASE}. Check that the backend is running and NEXT_PUBLIC_API_URL is correct.`
+      : e instanceof Error ? e.message : 'Request failed';
+    throw new Error(msg);
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error((err as { message?: string }).message || res.statusText || 'Request failed');
+  }
+  const contentType = res.headers.get('content-type');
+  if (res.status === 204 || !contentType?.includes('application/json')) {
+    return undefined as T;
+  }
+  return res.json();
+}
+
+export const auth = {
+  me: () => api<{ id: string; email: string; name: string | null; role: string }>('/auth/me'),
+  login: (email: string, password: string) =>
+    api<{ id: string; email: string; name: string | null; role: string }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    }),
+  register: (email: string, password: string, name?: string) =>
+    api<{ id: string; email: string; name: string | null; role: string }>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, name }),
+    }),
+  logout: () => api<{ success: boolean }>('/auth/logout', { method: 'POST' }),
+};
+
+export const products = {
+  list: (search?: string) =>
+    api<Array<Record<string, unknown>>>(search ? `/products?search=${encodeURIComponent(search)}` : '/products'),
+  get: (id: string) => api<Record<string, unknown>>(`/products/${id}`),
+};
+
+export const cart = {
+  get: () => api<{ id: string; items: Array<Record<string, unknown>> }>('/cart'),
+  addItem: (productId: string, quantity = 1) =>
+    api<Record<string, unknown>>('/cart/items', {
+      method: 'POST',
+      body: JSON.stringify({ productId, quantity }),
+    }),
+  updateItem: (itemId: string, quantity: number) =>
+    api<Record<string, unknown> | null>(`/cart/items/${itemId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ quantity }),
+    }),
+  removeItem: (itemId: string) =>
+    api<{ success: boolean }>(`/cart/items/${itemId}`, { method: 'DELETE' }),
+};
+
+export const orders = {
+  list: () => api<Array<Record<string, unknown>>>('/orders'),
+  get: (id: string) => api<Record<string, unknown>>(`/orders/${id}`),
+  create: () => api<Record<string, unknown>>('/orders', { method: 'POST' }),
+};
+
+export const admin = {
+  users: () => api<Array<Record<string, unknown>>>('/admin/users'),
+  updateUser: (id: string, data: { isActive: boolean }) =>
+    api<Record<string, unknown>>(`/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  uploadImage: async (file: File): Promise<{ url: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const url = `${API_BASE}/admin/upload`;
+    const res = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: res.statusText }));
+      const msg = (err as { message?: string }).message || res.statusText || 'Upload failed';
+      if (res.status === 404) {
+        throw new Error(`${msg}. Restart the backend (npm run start:dev in backend/) so the upload route is loaded.`);
+      }
+      throw new Error(msg);
+    }
+    return res.json();
+  },
+  products: () => api<Array<Record<string, unknown>>>('/admin/products'),
+  product: (id: string) => api<Record<string, unknown>>(`/admin/products/${id}`),
+  createProduct: (data: { title: string; slug: string; description: string; priceCents: number; stock: number; categoryId?: string; imageUrls: string[] }) =>
+    api<Record<string, unknown>>('/admin/products', { method: 'POST', body: JSON.stringify(data) }),
+  updateProduct: (id: string, data: Record<string, unknown>) =>
+    api<Record<string, unknown>>(`/admin/products/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  removeProduct: (id: string) =>
+    api<Record<string, unknown>>(`/admin/products/${id}`, { method: 'DELETE' }),
+  deleteProductPermanent: (id: string) =>
+    api<void>(`/admin/products/${id}?permanent=true`, { method: 'DELETE' }),
+  orders: () => api<Array<Record<string, unknown>>>('/admin/orders'),
+  categories: () => api<Array<Record<string, unknown>>>('/admin/categories'),
+};
