@@ -2389,7 +2389,18 @@ a.btn:focus-visible {
   font-weight: 600;
 }
 
-/* Exam study guide */
+/* Exam study guide — offset anchor scroll for sticky header (banner + nav) */
+html:has(.page--study) {
+  --study-scroll-offset: 7.75rem;
+  scroll-padding-top: var(--study-scroll-offset);
+}
+
+@media (min-width: 900px) {
+  html:has(.page--study) {
+    --study-scroll-offset: 10rem;
+  }
+}
+
 .page--study {
   max-width: 1100px;
 }
@@ -2409,7 +2420,7 @@ a.btn:focus-visible {
 
 .study-toc {
   position: sticky;
-  top: 1rem;
+  top: var(--study-scroll-offset, 7.75rem);
   margin: 0;
   padding: 1rem 1.1rem;
   background: var(--color-bg-card);
@@ -2455,7 +2466,7 @@ a.btn:focus-visible {
 }
 
 .study-section {
-  scroll-margin-top: 1.25rem;
+  scroll-margin-top: var(--study-scroll-offset, 7.75rem);
   padding-bottom: 2rem;
   border-bottom: var(--border-width) solid var(--color-border);
 }
