@@ -94,7 +94,21 @@ You should see ~40 products and test users in the seed output.
    | `NEXT_PUBLIC_API_URL` | `https://YOUR-SERVICE.onrender.com` (Render URL, no trailing slash) |
    | `NEXT_PUBLIC_SITE_URL` | `https://YOUR-APP.vercel.app` (Vercel URL, for sitemap) |
 
-5. Deploy. Copy your production URL from **Settings → Domains** (e.g. `https://fullstack-exam-weld.vercel.app`).
+5. Deploy. In **Settings → Domains**, note the domain marked **Production** (often `https://YOUR-PROJECT-NAME.vercel.app`). Use that exact URL everywhere — do not guess a `-weld` or other alias unless it appears on this project.
+
+### Vercel shows “Build succeeded” but the site is `404: NOT_FOUND`
+
+That plain Vercel error (with an `arn1::…` id) means the **hostname has no deployment**, not that Next.js failed.
+
+1. Open the Vercel project that built `frontend` (log shows `frontend@1.0.0` → `next build`).
+2. Open the latest **Production** deployment → click **Visit** (or use the URL from the deployment row).
+3. Go to **Settings → Domains**:
+   - If your custom alias (e.g. `fullstack-exam-weld.vercel.app`) is missing, click **Add** and attach it to **this** project.
+   - If that domain is listed on a **different** Vercel project, remove it there first, then add it here.
+4. Ensure **Root directory** = `frontend` and **Framework** = Next.js (not Vite).
+5. Optional: **Settings → Deployment Protection** — turn off protection for Production if you need a public site without login.
+
+`https://fullstack-exam.vercel.app` may belong to another app (e.g. an old Vite project). Always use the **Production** domain shown on the project that deploys this repo’s `frontend` folder.
 
 ---
 
@@ -115,7 +129,28 @@ If login fails:
 
 ---
 
-## 5. CI/CD (GitHub Actions)
+## 5. Sentry (optional logging)
+
+1. Create a free project at [https://sentry.io](https://sentry.io) (platform: **Next.js** and/or **Node**).
+2. Copy the **DSN** from **Settings → Client Keys**.
+3. Set environment variables:
+
+   | Service | Variable | Value |
+   |---------|----------|--------|
+   | Render (API) | `SENTRY_DSN` | Your DSN |
+   | Vercel (frontend) | `NEXT_PUBLIC_SENTRY_DSN` | Same DSN (or a separate frontend project) |
+   | Vercel (optional) | `SENTRY_DSN` | Same DSN (server-side Next.js) |
+
+4. Redeploy both services.
+5. Verify:
+   - API: `https://YOUR-API.onrender.com/debug/sentry` (only works when `SENTRY_DSN` is set)
+   - Frontend: `https://YOUR-APP.vercel.app/api/sentry-test`
+
+Errors should appear in the Sentry **Issues** tab within a minute.
+
+---
+
+## 6. CI/CD (GitHub Actions)
 
 Already configured in `.github/workflows/ci.yml`:
 
@@ -127,7 +162,7 @@ Work on branch `karolina-work`, merge to `main` when ready to deploy.
 
 ---
 
-## 6. WISEflow checklist
+## 7. WISEflow checklist
 
 Fill `WISEFLOW.md` with:
 

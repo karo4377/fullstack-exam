@@ -2,3 +2,7 @@
 .env
 .env.local
 !.env.local.example
+
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/

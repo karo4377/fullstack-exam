@@ -8,6 +8,7 @@
 
 - **Client:** Next.js 14 (TypeScript, App Router), React Query, cookie-based auth.
 - **Server:** NestJS (TypeScript), REST API, JWT in HTTP-only cookies, CORS, validation, Swagger at `/api/docs`.
+- **Monitoring:** Sentry on backend and frontend (set `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` in production).
 - **Database:** PostgreSQL with Prisma ORM; migrations, seed (~40 products), SQL views/triggers (see `DATABASE.md`).
 
 ## Links
@@ -36,4 +37,6 @@
 - Backend: REST API, auth, admin, Swagger, role guards.
 - Frontend: Home with product slider, shop, cart, checkout, orders, admin UI, sitemap, 404 page.
 - CI: GitHub Actions workflow.
+- E2E: Cypress (`frontend/cypress/e2e/`).
+- Logging: Sentry (`@sentry/nestjs`, `@sentry/nextjs`).
 - Docs: README, `DEPLOYMENT.md`, `DATABASE.md`, this WISEflow page.

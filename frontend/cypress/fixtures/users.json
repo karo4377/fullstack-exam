@@ -1,0 +1,10 @@
+{
+  "customer": {
+    "email": "customer@artshop.local",
+    "password": "customer123"
+  },
+  "admin": {
+    "email": "admin@artshop.local",
+    "password": "admin123"
+  }
+}

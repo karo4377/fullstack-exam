@@ -64,7 +64,9 @@ NestJS REST API with PostgreSQL (Prisma), JWT auth (HTTP-only cookies), and CORS
 
 ## Logging / monitoring
 
-For production you can add [Sentry](https://sentry.io) (`@sentry/node`) and set `SENTRY_DSN` in the environment. Configure in `main.ts` before `app.listen()`.
+[Sentry](https://sentry.io) is integrated via `@sentry/nestjs`. Set `SENTRY_DSN` in `.env` (or Render env). Unhandled errors are reported automatically.
+
+Test (with `SENTRY_DSN` set): `GET http://localhost:3001/debug/sentry`
 
 ## Deployment
 
