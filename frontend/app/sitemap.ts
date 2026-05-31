@@ -10,6 +10,7 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
   { url: `${siteUrl}/shipping`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
   { url: `${siteUrl}/faq`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
   { url: `${siteUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+  { url: `${siteUrl}/study`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
   { url: `${siteUrl}/account`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
   { url: `${siteUrl}/login`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
   { url: `${siteUrl}/register`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },

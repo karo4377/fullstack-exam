@@ -54,6 +54,7 @@ export const footerCustomerServiceLinks = [
 export const footerLegalLinks = [
   { href: '/terms', label: 'Terms of Service' },
   { href: '/privacy', label: 'Privacy Policy' },
+  { href: '/study', label: 'Exam study guide' },
 ] as const;
 
 export const footerTrustPoints = [
