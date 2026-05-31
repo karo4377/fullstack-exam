@@ -32,6 +32,9 @@ export function isShopAllNavActive(pathname: string, searchParams: URLSearchPara
 }
 
 export function navLinkClass(pathname: string, href: string, searchParams?: URLSearchParams) {
+  if (href === '/admin') {
+    return pathname.startsWith('/admin') ? 'site-nav-link is-active' : 'site-nav-link';
+  }
   if (href === '/products' && searchParams) {
     return isShopAllNavActive(pathname, searchParams)
       ? 'site-nav-link is-active'

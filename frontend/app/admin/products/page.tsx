@@ -46,8 +46,7 @@ export default function AdminProductsPage() {
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
-        <h1 className="title-page">Products</h1>
+      <div className="admin-page-toolbar">
         <Link href="/admin/products/new" className="btn btn-primary">Add product</Link>
       </div>
       {deleteError && <p className="form-error" style={{ marginBottom: '1rem' }}>{deleteError}</p>}

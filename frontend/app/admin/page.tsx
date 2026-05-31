@@ -14,9 +14,6 @@ export default function AdminDashboardPage() {
 
   return (
     <>
-      <h1 className="title-page">Shop owner dashboard</h1>
-      <p className="subtitle">Overview of ARTSHOP — products, customers, and orders.</p>
-
       {isLoading && <p className="muted-text">Loading stats…</p>}
       {error && <p className="form-error">Could not load dashboard stats.</p>}
 

@@ -25,7 +25,6 @@ export function SiteHeader() {
   const { user, loading, logout } = useAuth();
   const { itemCount } = useCart();
   const isAdmin = user?.role === 'ADMIN';
-  const isAdminRoute = pathname.startsWith('/admin');
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -82,29 +81,6 @@ export function SiteHeader() {
     setSearchOpen((open) => !open);
   };
 
-  if (isAdminRoute) {
-    return (
-      <header className="site-header site-header--admin">
-        <div className="site-header-main">
-          <Link href="/admin" className="site-brand">
-            {shopName} <span className="site-brand-tag">Admin</span>
-          </Link>
-          <nav className="site-nav site-nav--admin" aria-label="Admin">
-            <Link href="/" className="site-nav-link">
-              View shop
-            </Link>
-          </nav>
-          <div className="site-header-utilities">
-            <span className="site-user-email">{user?.email}</span>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => logout()}>
-              Log out
-            </button>
-          </div>
-        </div>
-      </header>
-    );
-  }
-
   return (
     <header className="site-header">
       <div className="site-header-banner">
@@ -160,8 +136,8 @@ export function SiteHeader() {
               </Link>
             ))}
             {!loading && isAdmin && (
-              <Link href="/admin" className="site-nav-link site-nav-link--owner">
-                Owner dashboard
+              <Link href="/admin" className={navLinkClass(pathname, '/admin')}>
+                Owner area
               </Link>
             )}
           </nav>
@@ -185,7 +161,7 @@ export function SiteHeader() {
               <Link
                 href={user ? (isAdmin ? '/admin' : '/account') : '/login'}
                 className="site-header-icon-btn"
-                aria-label={user ? (isAdmin ? 'Owner dashboard' : 'Account') : 'Log in'}
+                aria-label={user ? (isAdmin ? 'Owner area' : 'Account') : 'Log in'}
                 title={user?.email ?? 'Log in'}
               >
                 <User size={20} strokeWidth={1.75} />
@@ -276,6 +252,13 @@ export function SiteHeader() {
                 </Link>
               </li>
             ))}
+            {!loading && isAdmin && (
+              <li>
+                <Link href="/admin/products" className="mobile-nav-link" onClick={closeMobile}>
+                  Manage products
+                </Link>
+              </li>
+            )}
             <li>
               <button
                 type="button"
@@ -304,7 +287,7 @@ export function SiteHeader() {
                     className="mobile-nav-link"
                     onClick={closeMobile}
                   >
-                    {isAdmin ? 'Owner dashboard' : 'My account'}
+                    {isAdmin ? 'Owner area' : 'My account'}
                   </Link>
                 </li>
                 {!isAdmin && (

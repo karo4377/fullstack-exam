@@ -17,8 +17,6 @@ export default function AdminOrdersPage() {
 
   return (
     <>
-      <h1 className="title-page">Orders</h1>
-      <p className="subtitle">All orders across the shop.</p>
       {list.length === 0 ? (
         <p className="empty-state">No orders yet.</p>
       ) : (

@@ -122,7 +122,6 @@ export default function AdminEditProductPage() {
   return (
     <>
       <Link href="/admin/products" className="back-link">← Back to products</Link>
-      <h1 className="title-page">Edit product</h1>
       <form className="admin-form" onSubmit={handleSubmit} style={{ marginTop: '1rem' }}>
         <div className="form-group">
           <label htmlFor="title">Title</label>

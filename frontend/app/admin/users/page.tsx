@@ -25,8 +25,9 @@ export default function AdminUsersPage() {
 
   return (
     <>
-      <h1 className="title-page">Users</h1>
-      <p className="subtitle">Registered customers (you are not shown in this list). Deactivated users cannot log in.</p>
+      <p className="muted-text admin-page-note">
+        Registered customers only — you are not shown. Deactivated users cannot log in.
+      </p>
       {list.length === 0 ? (
         <p className="empty-state">No other users yet.</p>
       ) : (
