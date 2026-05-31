@@ -15,8 +15,9 @@
 
 ### env (keep examples)
 **/.env
-**/.env.*
+**/.env.local
 !**/.env.example
+!**/.env.local.example
 
 ### uploads / generated runtime files
 **/uploads/

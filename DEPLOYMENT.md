@@ -53,8 +53,9 @@ You should see ~40 products and test users in the seed output.
    - **Region:** same as Neon if possible
    - **Root directory:** `backend`
    - **Runtime:** Node
-   - **Build command:** `npm ci && npx prisma generate && npm run build`
-   - **Start command:** `node dist/main.js`
+   - **Build command:** `npm ci && npm run build`  
+     (`npm run build` runs `prisma generate` + `nest build`; build tools are in `dependencies` so Render does not skip them.)
+   - **Start command:** `npm run start:prod` (runs `node dist/main`)
 4. **Environment variables:**
 
    | Key | Value |
@@ -93,7 +94,7 @@ You should see ~40 products and test users in the seed output.
    | `NEXT_PUBLIC_API_URL` | `https://YOUR-SERVICE.onrender.com` (Render URL, no trailing slash) |
    | `NEXT_PUBLIC_SITE_URL` | `https://YOUR-APP.vercel.app` (Vercel URL, for sitemap) |
 
-5. Deploy. Copy the production URL (e.g. `https://fullstack-exam.vercel.app`).
+5. Deploy. Copy your production URL from **Settings → Domains** (e.g. `https://fullstack-exam-weld.vercel.app`).
 
 ---
 
