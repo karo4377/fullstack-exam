@@ -66,3 +66,19 @@ export function userToProfileForm(user: UserProfile) {
     country: user.country ?? 'Denmark',
   };
 }
+
+export function isProfileComplete(user: UserProfile): boolean {
+  return Boolean(
+    user.firstName?.trim() &&
+      user.phone?.trim() &&
+      user.addressLine1?.trim() &&
+      user.city?.trim() &&
+      user.postalCode?.trim(),
+  );
+}
+
+export function formatSavedAddress(user: UserProfile): string | null {
+  const cityLine = [user.postalCode?.trim(), user.city?.trim()].filter(Boolean).join(' ');
+  const parts = [user.addressLine1?.trim(), cityLine, user.country?.trim()].filter(Boolean);
+  return parts.length > 0 ? parts.join(', ') : null;
+}

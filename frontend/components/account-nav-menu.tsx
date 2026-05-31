@@ -41,7 +41,6 @@ export function AccountNavMenu({
   const firstName = userFirstName(user);
   const isAdmin = user.role === 'ADMIN';
   const links = isAdmin ? ADMIN_LINKS : CUSTOMER_LINKS;
-  const isActive = links.some((link) => link.match(pathname));
 
   const handleLogout = () => {
     onNavigate?.();
@@ -92,7 +91,7 @@ export function AccountNavMenu({
     <div className="account-nav nav-dropdown">
       <button
         type="button"
-        className={`account-nav-trigger${isActive ? ' is-active' : ''}`}
+        className="account-nav-trigger"
         aria-haspopup="menu"
         aria-label={`Account menu for ${firstName}`}
       >

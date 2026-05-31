@@ -2905,63 +2905,182 @@ html:has(.page--study) {
 }
 
 /* Account hub */
-.account-guest {
+.account-page {
+  max-width: 960px;
+}
+
+.account-guest-card {
+  max-width: 480px;
+  padding: 1.5rem 1.75rem;
+}
+
+.account-guest-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.account-guest-text {
+  margin: 0 0 1rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.account-guest-perks {
+  margin: 0 0 1.25rem;
+  padding-left: 1.15rem;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.account-guest-perks li + li {
+  margin-top: 0.25rem;
+}
+
+.account-guest-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
 }
 
-.account-links {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  max-width: 520px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+.account-nudge {
+  margin-bottom: 1.5rem;
 }
 
-.account-link-card {
+.account-hub {
   display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  gap: 0.15rem 1rem;
-  padding: 1rem 1.15rem;
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-card);
-  text-decoration: none;
-  color: inherit;
-  box-shadow: var(--shadow-sm);
-  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  gap: 1.5rem;
+  align-items: start;
 }
 
-.account-link-card:hover {
-  border-color: var(--color-border-strong);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+@media (min-width: 768px) {
+  .account-hub {
+    grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+    gap: 2rem;
+  }
 }
 
-.account-link-title {
+.account-summary {
+  padding: 1.25rem 1.35rem;
+}
+
+.account-summary-eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.68rem;
   font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  font-size: 0.85rem;
-  letter-spacing: 0.06em;
-  grid-column: 1;
+  color: var(--color-text-muted);
 }
 
-.account-link-desc {
+.account-summary-name {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.account-summary-email,
+.account-summary-meta {
+  margin: 0;
   font-size: 0.9rem;
   color: var(--color-text-muted);
-  grid-column: 1;
+  word-break: break-word;
 }
 
-.account-link-arrow {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: center;
-  font-size: 1.25rem;
-  color: var(--color-accent);
+.account-summary-meta {
+  margin-top: 0.35rem;
+}
+
+.account-summary-address {
+  margin: 0.85rem 0 1rem;
+  padding-top: 0.85rem;
+  border-top: var(--border-width) solid var(--color-border);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--color-text);
+}
+
+.account-summary-address--empty {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.account-summary-action {
+  width: 100%;
+  justify-content: center;
+}
+
+.account-section-title {
+  margin: 0 0 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.account-tiles {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+@media (min-width: 540px) {
+  .account-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .account-tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.account-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.1rem 1.15rem;
+  min-height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.account-tile-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-bottom: 0.15rem;
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.account-tile-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+.account-tile-desc {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.account-shop-link {
+  margin: 1.25rem 0 0;
+}
+
+.account-shop-link-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
 }
 
 /* Categories */
