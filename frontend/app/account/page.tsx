@@ -61,6 +61,15 @@ export default function AccountPage() {
       />
       <ul className="account-links">
         <li>
+          <Link href="/account/favorites" className="account-link-card">
+            <span className="account-link-title">Favourites</span>
+            <span className="account-link-desc">Saved prints you want to keep</span>
+            <span className="account-link-arrow" aria-hidden>
+              →
+            </span>
+          </Link>
+        </li>
+        <li>
           <Link href="/account/orders" className="account-link-card">
             <span className="account-link-title">Order history</span>
             <span className="account-link-desc">View past orders and details</span>

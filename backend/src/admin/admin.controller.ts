@@ -113,6 +113,30 @@ export class AdminController {
     return this.ordersService.listAllForAdmin();
   }
 
+  @Get('stats')
+  async stats() {
+    const [productCount, customerCount, orderCount, revenue, reviewCount, pendingOrders] =
+      await Promise.all([
+        this.prisma.product.count({ where: { isActive: true } }),
+        this.prisma.user.count({ where: { role: 'CUSTOMER' } }),
+        this.prisma.order.count(),
+        this.prisma.order.aggregate({
+          _sum: { totalCents: true },
+          where: { status: { in: ['PAID', 'SHIPPED'] } },
+        }),
+        this.prisma.review.count(),
+        this.prisma.order.count({ where: { status: 'PENDING' } }),
+      ]);
+    return {
+      productCount,
+      customerCount,
+      orderCount,
+      reviewCount,
+      pendingOrders,
+      revenueCents: revenue._sum.totalCents ?? 0,
+    };
+  }
+
   @Get('categories')
   listCategories() {
     return this.prisma.category.findMany({ orderBy: { name: 'asc' } });

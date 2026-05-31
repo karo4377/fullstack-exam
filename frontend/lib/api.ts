@@ -140,5 +140,30 @@ export const admin = {
   deleteProductPermanent: (id: string) =>
     api<void>(`/admin/products/${id}?permanent=true`, { method: 'DELETE' }),
   orders: () => api<Array<Record<string, unknown>>>('/admin/orders'),
+  stats: () =>
+    api<{
+      productCount: number;
+      customerCount: number;
+      orderCount: number;
+      reviewCount: number;
+      pendingOrders: number;
+      revenueCents: number;
+    }>('/admin/stats'),
   categories: () => api<Array<Record<string, unknown>>>('/admin/categories'),
+};
+
+export const favorites = {
+  list: () =>
+    api<
+      Array<{
+        id: string;
+        productId: string;
+        product: Record<string, unknown>;
+      }>
+    >('/favorites'),
+  ids: () => api<Array<{ productId: string }>>('/favorites/ids'),
+  add: (productId: string) =>
+    api<{ id: string }>(`/favorites/${productId}`, { method: 'POST' }),
+  remove: (productId: string) =>
+    api<{ count: number }>(`/favorites/${productId}`, { method: 'DELETE' }),
 };

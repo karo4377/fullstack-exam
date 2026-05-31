@@ -26,6 +26,7 @@ model User {
   reviews  Review[]
   cart     Cart?
   artist   Artist?
+  favorites Favorite[]
 }
 
 model Artist {
@@ -68,6 +69,7 @@ model Product {
   orderItems OrderItem[]
   reviews    Review[]
   cartItems  CartItem[]
+  favorites  Favorite[]
 }
 
 model ProductImage {
@@ -139,6 +141,18 @@ model Review {
   user    User    @relation(fields: [userId], references: [id])
 
   @@unique([productId, userId])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
 }
 
 enum Role {

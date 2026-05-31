@@ -57,9 +57,9 @@ npm run seed
 Creates:
 
 - **Admin:** `admin@artshop.local` / `admin123`
-- **Customer:** `customer@artshop.local` / `customer123`
+- **Customers:** `customer@artshop.local`, `emma@`, `noah@`, `sofia@`, `lucas@`, `maya@` `@artshop.local` — all password `customer123`
 - **~40 products** across categories
-- Sample **reviews** on first products
+- Sample **reviews**, **orders**, and **favourites** per customer
 
 ## Security (application level)
 

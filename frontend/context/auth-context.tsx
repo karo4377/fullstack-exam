@@ -15,15 +15,15 @@ type User = { id: string; email: string; name: string | null; role: string } | n
 const AuthContext = createContext<{
   user: User;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ id: string; email: string; name: string | null; role: string }>;
+  register: (email: string, password: string, name?: string) => Promise<{ id: string; email: string; name: string | null; role: string }>;
   logout: () => Promise<void>;
   refetch: () => Promise<void>;
 }>({
   user: null,
   loading: true,
-  login: async () => {},
-  register: async () => {},
+  login: async () => ({} as { id: string; email: string; name: string | null; role: string }),
+  register: async () => ({} as { id: string; email: string; name: string | null; role: string }),
   logout: async () => {},
   refetch: async () => {},
 });
@@ -51,6 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, password: string) => {
       const u = await authApi.login(email, password);
       setUser(u);
+      setLoading(false);
+      return u;
     },
     []
   );
@@ -59,6 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, password: string, name?: string) => {
       const u = await authApi.register(email, password, name);
       setUser(u);
+      setLoading(false);
+      return u;
     },
     []
   );

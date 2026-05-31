@@ -1089,6 +1089,106 @@ a.btn:focus-visible {
   border-color: var(--color-accent);
 }
 
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.85rem;
+  margin: 1.25rem 0 2rem;
+}
+
+.admin-stat-card {
+  padding: 1rem 1.1rem;
+  background: var(--color-bg-card);
+  border: var(--border-width) solid var(--color-border);
+}
+
+.admin-stat-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.admin-stat-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.admin-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.admin-dashboard-links {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 520px;
+}
+
+.admin-dash-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.15rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.admin-dash-link span {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.favorite-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.45rem 0.75rem;
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.favorite-btn:hover,
+.favorite-btn.is-active {
+  color: var(--color-coral);
+  border-color: var(--color-coral);
+}
+
+.favorite-btn--compact {
+  margin: 0;
+  padding: 0.35rem;
+  border: none;
+  background: transparent;
+}
+
+.site-nav-link--owner {
+  color: var(--color-accent);
+}
+
+.site-header-logout {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .site-header-logout {
+    display: inline-flex;
+  }
+}
+
 .admin-table-wrap {
   overflow-x: auto;
   border-radius: 0;

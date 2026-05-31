@@ -2,7 +2,7 @@
 
 ## Project
 
-**Cute Art Webshop (ARTSHOP)** – Full-stack web application for an art/prints shop: browse products (search + category filter), register/login, reviews, cart, simulated checkout, order history, and admin panel (products, users, orders).
+**Art webshop** – Full-stack web application for an art/prints shop: browse products (search + category filter), register/login, reviews, cart, simulated checkout, order history, and admin panel (products, users, orders).
 
 ## Architecture
 
@@ -36,6 +36,11 @@
 |------|-------|----------|
 | Admin | admin@artshop.local | admin123 |
 | Customer | customer@artshop.local | customer123 |
+| Customer | emma@artshop.local | customer123 |
+| Customer | noah@artshop.local | customer123 |
+| Customer | sofia@artshop.local | customer123 |
+| Customer | lucas@artshop.local | customer123 |
+| Customer | maya@artshop.local | customer123 |
 
 Admin panel: https://fullstack-exam-weld.vercel.app/admin (after login as admin).
 

@@ -1,10 +1,28 @@
 import * as bcrypt from 'bcrypt';
-import { PrismaClient } from '@prisma/client';
+import { OrderStatus, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 const adjectives = ['Cute', 'Soft', 'Dreamy', 'Pastel', 'Tiny', 'Cozy', 'Sunny', 'Moonlit', 'Floral', 'Minimal'];
 const nouns = ['Cat', 'Bunny', 'Coffee', 'Garden', 'Cloud', 'Star', 'Leaf', 'Heart', 'Wave', 'House'];
+
+const SEED_CUSTOMERS = [
+  { email: 'customer@artshop.local', name: 'Demo Customer' },
+  { email: 'emma@artshop.local', name: 'Emma Nielsen' },
+  { email: 'noah@artshop.local', name: 'Noah Larsen' },
+  { email: 'sofia@artshop.local', name: 'Sofia Andersen' },
+  { email: 'lucas@artshop.local', name: 'Lucas Pedersen' },
+  { email: 'maya@artshop.local', name: 'Maya Johansen' },
+];
+
+const REVIEW_COMMENTS = [
+  'Lovely quality and fast delivery!',
+  'Perfect for our nursery wall.',
+  'Soft colours — exactly as pictured.',
+  'Would order again.',
+  'Beautiful print, well packaged.',
+  null,
+];
 
 function placeholder(text: string, hue = 'c47b7b') {
   const label = encodeURIComponent(text.replace(/\s+/g, '+'));
@@ -12,29 +30,34 @@ function placeholder(text: string, hue = 'c47b7b') {
 }
 
 async function main() {
+  const passwordHash = await bcrypt.hash('customer123', 10);
   const adminHash = await bcrypt.hash('admin123', 10);
+
   await prisma.user.upsert({
     where: { email: 'admin@artshop.local' },
     create: {
       email: 'admin@artshop.local',
       password: adminHash,
-      name: 'Shop Admin',
+      name: 'Shop Owner',
       role: 'ADMIN',
     },
-    update: { password: adminHash, role: 'ADMIN' },
+    update: { password: adminHash, role: 'ADMIN', name: 'Shop Owner' },
   });
 
-  const customerHash = await bcrypt.hash('customer123', 10);
-  const customer = await prisma.user.upsert({
-    where: { email: 'customer@artshop.local' },
-    create: {
-      email: 'customer@artshop.local',
-      password: customerHash,
-      name: 'Demo Customer',
-      role: 'CUSTOMER',
-    },
-    update: { password: customerHash },
-  });
+  const customers: Array<{ id: string; email: string; name: string | null }> = [];
+  for (const c of SEED_CUSTOMERS) {
+    const user = await prisma.user.upsert({
+      where: { email: c.email },
+      create: {
+        email: c.email,
+        password: passwordHash,
+        name: c.name,
+        role: 'CUSTOMER',
+      },
+      update: { password: passwordHash, name: c.name },
+    });
+    customers.push(user);
+  }
 
   const prints = await prisma.category.upsert({
     where: { slug: 'prints' },
@@ -88,7 +111,7 @@ async function main() {
     });
   }
 
-  const productIds: string[] = [];
+  const products: Array<{ id: string; priceCents: number; title: string }> = [];
   for (const p of productData) {
     const { imageUrls, ...data } = p;
     const product = await prisma.product.upsert({
@@ -96,7 +119,7 @@ async function main() {
       create: data,
       update: { title: p.title, description: p.description, priceCents: p.priceCents, stock: p.stock, categoryId: p.categoryId },
     });
-    productIds.push(product.id);
+    products.push({ id: product.id, priceCents: product.priceCents, title: product.title });
     const existingImages = await prisma.productImage.findMany({ where: { productId: product.id } });
     if (existingImages.length === 0 && imageUrls.length > 0) {
       await prisma.productImage.createMany({
@@ -105,19 +128,69 @@ async function main() {
     }
   }
 
-  const reviewTargets = productIds.slice(0, 12);
-  for (let i = 0; i < reviewTargets.length; i++) {
-    const productId = reviewTargets[i];
-    const existing = await prisma.review.findUnique({
-      where: { productId_userId: { productId, userId: customer.id } },
-    });
-    if (!existing) {
-      await prisma.review.create({
-        data: {
-          productId,
+  // Reviews — spread across customers and products
+  for (let ci = 0; ci < customers.length; ci++) {
+    const customer = customers[ci];
+    const start = (ci * 4) % products.length;
+    for (let r = 0; r < 4; r++) {
+      const product = products[(start + r) % products.length];
+      await prisma.review.upsert({
+        where: { productId_userId: { productId: product.id, userId: customer.id } },
+        create: {
+          productId: product.id,
           userId: customer.id,
-          rating: 3 + (i % 3),
-          comment: i % 2 === 0 ? 'Lovely quality and fast delivery!' : null,
+          rating: 3 + ((ci + r) % 3),
+          comment: REVIEW_COMMENTS[(ci + r) % REVIEW_COMMENTS.length],
+        },
+        update: {
+          rating: 3 + ((ci + r) % 3),
+          comment: REVIEW_COMMENTS[(ci + r) % REVIEW_COMMENTS.length],
+        },
+      });
+    }
+  }
+
+  // Favourites — 3 products per customer
+  for (let ci = 0; ci < customers.length; ci++) {
+    const customer = customers[ci];
+    for (let f = 0; f < 3; f++) {
+      const product = products[(ci * 5 + f * 2) % products.length];
+      await prisma.favorite.upsert({
+        where: { userId_productId: { userId: customer.id, productId: product.id } },
+        create: { userId: customer.id, productId: product.id },
+        update: {},
+      });
+    }
+  }
+
+  // Order history — 1–2 paid/shipped orders per customer (skip if they already have orders)
+  const statuses: OrderStatus[] = ['PAID', 'SHIPPED', 'PAID'];
+  for (let ci = 0; ci < customers.length; ci++) {
+    const customer = customers[ci];
+    const existingOrders = await prisma.order.count({ where: { userId: customer.id } });
+    if (existingOrders > 0) continue;
+
+    const orderCount = ci % 2 === 0 ? 2 : 1;
+    for (let o = 0; o < orderCount; o++) {
+      const p1 = products[(ci * 3 + o) % products.length];
+      const p2 = products[(ci * 3 + o + 7) % products.length];
+      const items = [
+        { productId: p1.id, title: p1.title, priceCents: p1.priceCents, quantity: 1 },
+        ...(o === 0
+          ? [{ productId: p2.id, title: p2.title, priceCents: p2.priceCents, quantity: 2 }]
+          : []),
+      ];
+      const totalCents = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
+      const daysAgo = 14 - ci * 2 - o * 3;
+      const createdAt = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
+
+      await prisma.order.create({
+        data: {
+          userId: customer.id,
+          totalCents,
+          status: statuses[(ci + o) % statuses.length],
+          createdAt,
+          items: { create: items },
         },
       });
     }
@@ -125,8 +198,12 @@ async function main() {
 
   console.log(
     'Seed done:',
-    productData.length,
-    'products, admin (admin@artshop.local / admin123), customer (customer@artshop.local / customer123)',
+    products.length,
+    'products;',
+    customers.length,
+    'customers (password customer123);',
+    'admin admin@artshop.local / admin123;',
+    'reviews, favourites, and orders created.',
   );
 }
 

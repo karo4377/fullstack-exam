@@ -159,6 +159,11 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
+            {!loading && isAdmin && (
+              <Link href="/admin" className="site-nav-link site-nav-link--owner">
+                Owner dashboard
+              </Link>
+            )}
           </nav>
 
           <div className="site-header-utilities">
@@ -178,12 +183,22 @@ export function SiteHeader() {
             </button>
             {!loading && (
               <Link
-                href={user && !isAdmin ? '/account' : '/login'}
+                href={user ? (isAdmin ? '/admin' : '/account') : '/login'}
                 className="site-header-icon-btn"
-                aria-label={user ? 'Account' : 'Log in'}
+                aria-label={user ? (isAdmin ? 'Owner dashboard' : 'Account') : 'Log in'}
+                title={user?.email ?? 'Log in'}
               >
                 <User size={20} strokeWidth={1.75} />
               </Link>
+            )}
+            {!loading && user && (
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm site-header-logout"
+                onClick={() => logout()}
+              >
+                Log out
+              </button>
             )}
             {!isAdmin && (
               <div className="site-header-cart-wrap">
@@ -280,6 +295,38 @@ export function SiteHeader() {
                   Log in
                 </Link>
               </li>
+            )}
+            {!loading && user && (
+              <>
+                <li>
+                  <Link
+                    href={isAdmin ? '/admin' : '/account'}
+                    className="mobile-nav-link"
+                    onClick={closeMobile}
+                  >
+                    {isAdmin ? 'Owner dashboard' : 'My account'}
+                  </Link>
+                </li>
+                {!isAdmin && (
+                  <li>
+                    <Link href="/account/favorites" className="mobile-nav-link" onClick={closeMobile}>
+                      Favourites
+                    </Link>
+                  </li>
+                )}
+                <li>
+                  <button
+                    type="button"
+                    className="mobile-nav-link mobile-nav-link--button"
+                    onClick={() => {
+                      closeMobile();
+                      logout();
+                    }}
+                  >
+                    Log out
+                  </button>
+                </li>
+              </>
             )}
           </ul>
         </div>

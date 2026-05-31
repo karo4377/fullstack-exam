@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ImagePlaceholder } from '@/components/image-placeholder';
 import { formatDkk } from '@/lib/currency';
 import { resolveProductImageSrc } from '@/lib/product-image';
+import { FavoriteButton } from '@/components/favorite-button';
 import { PageHeader } from '@/components/page-header';
 import { products as productsApi, reviews as reviewsApi } from '@/lib/api';
 import { useAuth } from '@/context/auth-context';
@@ -106,6 +107,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         </div>
         <div className="product-detail-info">
           <p className="price">{formatDkk(priceCents)}</p>
+          <FavoriteButton productId={id} />
           <p className="description">{description}</p>
           <p className="stock">In stock: {stock}</p>
       {user?.role !== 'ADMIN' && stock > 0 && (

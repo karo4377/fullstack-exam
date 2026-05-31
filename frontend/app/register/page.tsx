@@ -17,8 +17,8 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
     try {
-      await register(email, password, name || undefined);
-      router.push('/');
+      const u = await register(email, password, name || undefined);
+      router.push('/account');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     }
