@@ -35,17 +35,24 @@ export async function api<T>(
   return res.json();
 }
 
+import type { UpdateProfilePayload, UserProfile } from './user-profile';
+
 export const auth = {
-  me: () => api<{ id: string; email: string; name: string | null; role: string }>('/auth/me'),
+  me: () => api<UserProfile>('/auth/me'),
   login: (email: string, password: string) =>
-    api<{ id: string; email: string; name: string | null; role: string }>('/auth/login', {
+    api<UserProfile>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
-  register: (email: string, password: string, name?: string) =>
-    api<{ id: string; email: string; name: string | null; role: string }>('/auth/register', {
+  register: (email: string, password: string, data?: { firstName?: string; lastName?: string; name?: string }) =>
+    api<UserProfile>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({ email, password, ...data }),
+    }),
+  updateProfile: (data: UpdateProfilePayload) =>
+    api<UserProfile>('/auth/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
     }),
   logout: () => api<{ success: boolean }>('/auth/logout', { method: 'POST' }),
 };

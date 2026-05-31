@@ -3,16 +3,130 @@ import { OrderStatus, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const adjectives = ['Cute', 'Soft', 'Dreamy', 'Pastel', 'Tiny', 'Cozy', 'Sunny', 'Moonlit', 'Floral', 'Minimal'];
-const nouns = ['Cat', 'Bunny', 'Coffee', 'Garden', 'Cloud', 'Star', 'Leaf', 'Heart', 'Wave', 'House'];
+type CategoryTheme = {
+  suffix: string;
+  adjectives: string[];
+  subjects: string[];
+  description: (title: string) => string;
+};
+
+const CATEGORY_THEMES: Record<'prints' | 'stickers' | 'originals', CategoryTheme> = {
+  prints: {
+    suffix: 'Print',
+    adjectives: ['Minimal', 'Pastel', 'Line Art', 'Scandi', 'Whimsical', 'Muted', 'Bold', 'Dreamy'],
+    subjects: ['Forest', 'Mountains', 'Bicycle', 'Reading Nook', 'Wildflowers', 'Seaside', 'Rainbow', 'Terrazzo'],
+    description: (title) => `${title} – giclée art print on premium paper, ready to frame.`,
+  },
+  stickers: {
+    suffix: 'Sticker Set',
+    adjectives: ['Matte', 'Waterproof', 'Mini', 'Pastel', 'Glow', 'Vintage', 'Cute', 'Bold'],
+    subjects: ['Floral', 'Paw Prints', 'Stars', 'Fruit', 'Hearts', 'Letters', 'Clouds', 'Arrows'],
+    description: (title) => `${title} – vinyl stickers for laptops, journals, and gifts.`,
+  },
+  originals: {
+    suffix: 'Original',
+    adjectives: ['Hand-painted', 'One-of-a-kind', 'Mini', 'Textured', 'Signed', 'Studio', 'Mixed Media'],
+    subjects: ['Landscape', 'Still Life', 'Portrait Study', 'Abstract', 'Botanical', 'Coastal Scene', 'Cityscape'],
+    description: (title) => `${title} – unique studio piece, shipped with care.`,
+  },
+};
+
+function categoryKey(
+  categoryId: string,
+  printsId: string,
+  stickersId: string,
+  originalsId: string,
+): 'prints' | 'stickers' | 'originals' {
+  if (categoryId === stickersId) return 'stickers';
+  if (categoryId === originalsId) return 'originals';
+  return 'prints';
+}
+
+function buildGeneratedProduct(
+  index: number,
+  categoryId: string,
+  printsId: string,
+  stickersId: string,
+  originalsId: string,
+) {
+  const key = categoryKey(categoryId, printsId, stickersId, originalsId);
+  const theme = CATEGORY_THEMES[key];
+  const adj = theme.adjectives[index % theme.adjectives.length];
+  const subject = theme.subjects[(index * 3 + 1) % theme.subjects.length];
+  const title = `${adj} ${subject} ${theme.suffix}`;
+  const slug = `${key}-seed-${String(index + 1).padStart(2, '0')}`;
+  return {
+    slug,
+    title,
+    description: theme.description(title),
+    priceCents: seedPriceForCategory(key, index),
+    stock: 5 + (index % 25),
+    categoryId,
+    imageUrls: [placeholder(title.slice(0, 14))],
+  };
+}
 
 const SEED_CUSTOMERS = [
-  { email: 'customer@artshop.local', name: 'Demo Customer' },
-  { email: 'emma@artshop.local', name: 'Emma Nielsen' },
-  { email: 'noah@artshop.local', name: 'Noah Larsen' },
-  { email: 'sofia@artshop.local', name: 'Sofia Andersen' },
-  { email: 'lucas@artshop.local', name: 'Lucas Pedersen' },
-  { email: 'maya@artshop.local', name: 'Maya Johansen' },
+  {
+    email: 'customer@artshop.local',
+    firstName: 'Demo',
+    lastName: 'Customer',
+    phone: '+45 12 34 56 78',
+    addressLine1: 'Vesterbrogade 12',
+    city: 'København V',
+    postalCode: '1553',
+    country: 'Denmark',
+  },
+  {
+    email: 'emma@artshop.local',
+    firstName: 'Emma',
+    lastName: 'Nielsen',
+    phone: '+45 20 11 22 33',
+    addressLine1: 'Nørrebrogade 45',
+    city: 'København N',
+    postalCode: '2200',
+    country: 'Denmark',
+  },
+  {
+    email: 'noah@artshop.local',
+    firstName: 'Noah',
+    lastName: 'Larsen',
+    phone: '+45 30 44 55 66',
+    addressLine1: 'Strøget 8',
+    city: 'København K',
+    postalCode: '1160',
+    country: 'Denmark',
+  },
+  {
+    email: 'sofia@artshop.local',
+    firstName: 'Sofia',
+    lastName: 'Andersen',
+    phone: '+45 40 77 88 99',
+    addressLine1: 'Jægersborg Allé 3',
+    city: 'Charlottenlund',
+    postalCode: '2920',
+    country: 'Denmark',
+  },
+  {
+    email: 'lucas@artshop.local',
+    firstName: 'Lucas',
+    lastName: 'Pedersen',
+    phone: '+45 50 12 34 56',
+    addressLine1: 'Banegårdspladsen 1',
+    city: 'Aarhus C',
+    postalCode: '8000',
+    country: 'Denmark',
+  },
+  {
+    email: 'maya@artshop.local',
+    firstName: 'Maya',
+    lastName: 'Johansen',
+    phone: '+45 60 98 76 54',
+    addressLine1: 'Torvet 5',
+    city: 'Odense C',
+    postalCode: '5000',
+    country: 'Denmark',
+  },
 ];
 
 const REVIEW_COMMENTS = [
@@ -27,6 +141,27 @@ const REVIEW_COMMENTS = [
 function placeholder(text: string, hue = 'c47b7b') {
   const label = encodeURIComponent(text.replace(/\s+/g, '+'));
   return `https://placehold.co/400x400/f5e0e0/${hue}?text=${label}`;
+}
+
+/** Prices in øre — small/large prints, sticker sets, originals. */
+const SEED_PRICES = {
+  printSmall: 19995,
+  printLarge: 44995,
+  stickerSet: 9995,
+  stickerSetSmall: 7995,
+  originalMini: 129995,
+  originalLarge: 249995,
+} as const;
+
+function seedPriceForCategory(key: 'prints' | 'stickers' | 'originals', index: number): number {
+  switch (key) {
+    case 'prints':
+      return index % 2 === 0 ? SEED_PRICES.printSmall : SEED_PRICES.printLarge;
+    case 'stickers':
+      return index % 2 === 0 ? SEED_PRICES.stickerSetSmall : SEED_PRICES.stickerSet;
+    case 'originals':
+      return index % 3 === 0 ? SEED_PRICES.originalLarge : SEED_PRICES.originalMini;
+  }
 }
 
 async function main() {
@@ -46,15 +181,33 @@ async function main() {
 
   const customers: Array<{ id: string; email: string; name: string | null }> = [];
   for (const c of SEED_CUSTOMERS) {
+    const name = `${c.firstName} ${c.lastName}`;
     const user = await prisma.user.upsert({
       where: { email: c.email },
       create: {
         email: c.email,
         password: passwordHash,
-        name: c.name,
+        name,
+        firstName: c.firstName,
+        lastName: c.lastName,
+        phone: c.phone,
+        addressLine1: c.addressLine1,
+        city: c.city,
+        postalCode: c.postalCode,
+        country: c.country,
         role: 'CUSTOMER',
       },
-      update: { password: passwordHash, name: c.name },
+      update: {
+        password: passwordHash,
+        name,
+        firstName: c.firstName,
+        lastName: c.lastName,
+        phone: c.phone,
+        addressLine1: c.addressLine1,
+        city: c.city,
+        postalCode: c.postalCode,
+        country: c.country,
+      },
     });
     customers.push(user);
   }
@@ -84,31 +237,41 @@ async function main() {
     categoryId: string;
     imageUrls: string[];
   }> = [
-    { slug: 'cute-cat-print', title: 'Cute Cat Print', description: 'A lovely minimalist cat illustration. A3 print.', priceCents: 1999, stock: 20, categoryId: prints.id, imageUrls: [placeholder('Cat Print'), placeholder('Detail')] },
-    { slug: 'sunset-dreams', title: 'Sunset Dreams', description: 'Soft pastel sunset art print.', priceCents: 2499, stock: 15, categoryId: prints.id, imageUrls: [placeholder('Sunset'), placeholder('Frame')] },
-    { slug: 'bunny-garden', title: 'Bunny Garden', description: 'Whimsical bunny in a flower garden. A4 print.', priceCents: 1499, stock: 30, categoryId: prints.id, imageUrls: [placeholder('Bunny', '7ba87b')] },
-    { slug: 'coffee-lover', title: 'Coffee Lover', description: 'Minimal line art of a steaming cup.', priceCents: 1299, stock: 25, categoryId: prints.id, imageUrls: [placeholder('Coffee', '6b5b55')] },
-    { slug: 'moon-phase', title: 'Moon Phase', description: 'Elegant moon phase cycle illustration.', priceCents: 1799, stock: 18, categoryId: prints.id, imageUrls: [placeholder('Moon')] },
-    { slug: 'sticker-set-botanical', title: 'Botanical Sticker Set', description: 'Set of 6 vinyl stickers: leaves and flowers.', priceCents: 899, stock: 50, categoryId: stickers.id, imageUrls: [placeholder('Botanical', '7ba87b')] },
-    { slug: 'sticker-set-cats', title: 'Cat Sticker Set', description: 'Set of 5 cute cat face stickers.', priceCents: 799, stock: 45, categoryId: stickers.id, imageUrls: [placeholder('Cats')] },
-    { slug: 'mini-original-abstract', title: 'Mini Original – Abstract', description: 'Small original acrylic painting, 10×10 cm.', priceCents: 4999, stock: 1, categoryId: originals.id, imageUrls: [placeholder('Original')] },
+    { slug: 'cute-cat-print', title: 'Cute Cat Print', description: 'A lovely minimalist cat illustration. A3 print.', priceCents: SEED_PRICES.printLarge, stock: 20, categoryId: prints.id, imageUrls: [placeholder('Cat Print'), placeholder('Detail')] },
+    { slug: 'sunset-dreams', title: 'Sunset Dreams', description: 'Soft pastel sunset art print. A3 size.', priceCents: SEED_PRICES.printLarge, stock: 15, categoryId: prints.id, imageUrls: [placeholder('Sunset'), placeholder('Frame')] },
+    { slug: 'bunny-garden', title: 'Bunny Garden', description: 'Whimsical bunny in a flower garden. A4 print.', priceCents: SEED_PRICES.printSmall, stock: 30, categoryId: prints.id, imageUrls: [placeholder('Bunny', '7ba87b')] },
+    { slug: 'coffee-lover', title: 'Coffee Lover', description: 'Minimal line art of a steaming cup. A4 print.', priceCents: SEED_PRICES.printSmall, stock: 25, categoryId: prints.id, imageUrls: [placeholder('Coffee', '6b5b55')] },
+    { slug: 'moon-phase', title: 'Moon Phase', description: 'Elegant moon phase cycle illustration. A3 print.', priceCents: SEED_PRICES.printLarge, stock: 18, categoryId: prints.id, imageUrls: [placeholder('Moon')] },
+    { slug: 'sticker-set-botanical', title: 'Botanical Sticker Set', description: 'Set of 6 vinyl stickers: leaves and flowers.', priceCents: SEED_PRICES.stickerSet, stock: 50, categoryId: stickers.id, imageUrls: [placeholder('Botanical', '7ba87b')] },
+    { slug: 'sticker-set-cats', title: 'Cat Sticker Set', description: 'Set of 5 cute cat face stickers.', priceCents: SEED_PRICES.stickerSetSmall, stock: 45, categoryId: stickers.id, imageUrls: [placeholder('Cats')] },
+    { slug: 'mini-original-abstract', title: 'Mini Original – Abstract', description: 'Small original acrylic painting, 10×10 cm.', priceCents: SEED_PRICES.originalMini, stock: 1, categoryId: originals.id, imageUrls: [placeholder('Original')] },
   ];
 
   for (let i = 0; i < 32; i++) {
-    const adj = adjectives[i % adjectives.length];
-    const noun = nouns[(i * 3) % nouns.length];
-    const title = `${adj} ${noun} ${i + 1}`;
-    const slug = `${adj}-${noun}-${i + 1}`.toLowerCase().replace(/\s+/g, '-');
     const categoryId = i % 5 === 0 ? originals.id : i % 3 === 0 ? stickers.id : prints.id;
-    productData.push({
-      slug,
-      title,
-      description: `${title} – art piece for your home. Limited stock.`,
-      priceCents: 999 + (i % 20) * 100,
-      stock: 5 + (i % 25),
-      categoryId,
-      imageUrls: [placeholder(title.slice(0, 12))],
-    });
+    productData.push(buildGeneratedProduct(i, categoryId, prints.id, stickers.id, originals.id));
+  }
+
+  const seedSlugs = new Set(productData.map((p) => p.slug));
+  const handcraftedSlugs = new Set([
+    'cute-cat-print',
+    'sunset-dreams',
+    'bunny-garden',
+    'coffee-lover',
+    'moon-phase',
+    'sticker-set-botanical',
+    'sticker-set-cats',
+    'mini-original-abstract',
+  ]);
+  const existingProducts = await prisma.product.findMany({ select: { id: true, slug: true } });
+  for (const existing of existingProducts) {
+    if (seedSlugs.has(existing.slug) || handcraftedSlugs.has(existing.slug)) continue;
+    const isLegacyGenerated =
+      /^[a-z]+-[a-z]+-\d+$/.test(existing.slug) ||
+      /^(prints|stickers|originals)-/.test(existing.slug);
+    if (isLegacyGenerated) {
+      await prisma.product.delete({ where: { id: existing.id } }).catch(() => undefined);
+    }
   }
 
   const products: Array<{ id: string; priceCents: number; title: string }> = [];

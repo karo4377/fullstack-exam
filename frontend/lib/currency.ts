@@ -1,7 +1,7 @@
 const dkkFormatter = new Intl.NumberFormat('da-DK', {
   style: 'currency',
   currency: 'DKK',
-  minimumFractionDigits: 0,
+  minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
 

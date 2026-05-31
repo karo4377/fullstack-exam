@@ -61,6 +61,15 @@ export default function AccountPage() {
       />
       <ul className="account-links">
         <li>
+          <Link href="/account/profile" className="account-link-card">
+            <span className="account-link-title">Profile & delivery</span>
+            <span className="account-link-desc">Name, phone, and address for faster checkout</span>
+            <span className="account-link-arrow" aria-hidden>
+              →
+            </span>
+          </Link>
+        </li>
+        <li>
           <Link href="/account/favorites" className="account-link-card">
             <span className="account-link-title">Favourites</span>
             <span className="account-link-desc">Saved prints you want to keep</span>

@@ -11,6 +11,7 @@ import { useCart } from '@/context/cart-context';
 import { useAuth } from '@/context/auth-context';
 import { clearGuestCart } from '@/lib/guest-cart';
 import { registeredPerksNote } from '@/lib/site';
+import { profileToCheckoutFields } from '@/lib/user-profile';
 
 type PaymentMethod = 'card' | 'mobilepay';
 
@@ -39,10 +40,16 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
 
   useEffect(() => {
-    if (user?.email) {
-      setForm((prev) => ({ ...prev, email: user.email }));
-    }
-  }, [user?.email]);
+    if (!user || isGuest) return;
+    const profile = profileToCheckoutFields(user);
+    setForm((prev) => ({
+      ...prev,
+      ...profile,
+      cardNumber: prev.cardNumber,
+      cardExpiry: prev.cardExpiry,
+      cardCvc: prev.cardCvc,
+    }));
+  }, [user, isGuest]);
 
   const placeOrder = useMutation({
     mutationFn: async () => {
@@ -131,6 +138,17 @@ export default function CheckoutPage() {
               Log in
             </Link>{' '}
             for a faster checkout.
+          </p>
+        </div>
+      )}
+
+      {!isGuest && user && (
+        <div className="notice-banner notice-banner--info" role="status">
+          <p>
+            Your saved profile details are pre-filled below.{' '}
+            <Link href="/account/profile" className="text-link">
+              Update profile
+            </Link>
           </p>
         </div>
       )}

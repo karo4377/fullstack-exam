@@ -9,21 +9,28 @@ import {
   type ReactNode,
 } from 'react';
 import { auth as authApi } from '@/lib/api';
+import type { UpdateProfilePayload, UserProfile } from '@/lib/user-profile';
 
-type User = { id: string; email: string; name: string | null; role: string } | null;
+type User = UserProfile | null;
 
 const AuthContext = createContext<{
   user: User;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ id: string; email: string; name: string | null; role: string }>;
-  register: (email: string, password: string, name?: string) => Promise<{ id: string; email: string; name: string | null; role: string }>;
+  login: (email: string, password: string) => Promise<UserProfile>;
+  register: (
+    email: string,
+    password: string,
+    data?: { firstName?: string; lastName?: string; name?: string },
+  ) => Promise<UserProfile>;
+  updateProfile: (data: UpdateProfilePayload) => Promise<UserProfile>;
   logout: () => Promise<void>;
   refetch: () => Promise<void>;
 }>({
   user: null,
   loading: true,
-  login: async () => ({} as { id: string; email: string; name: string | null; role: string }),
-  register: async () => ({} as { id: string; email: string; name: string | null; role: string }),
+  login: async () => ({} as UserProfile),
+  register: async () => ({} as UserProfile),
+  updateProfile: async () => ({} as UserProfile),
   logout: async () => {},
   refetch: async () => {},
 });
@@ -47,25 +54,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refetch();
   }, [refetch]);
 
-  const login = useCallback(
-    async (email: string, password: string) => {
-      const u = await authApi.login(email, password);
-      setUser(u);
-      setLoading(false);
-      return u;
-    },
-    []
-  );
+  const login = useCallback(async (email: string, password: string) => {
+    const u = await authApi.login(email, password);
+    setUser(u);
+    setLoading(false);
+    return u;
+  }, []);
 
   const register = useCallback(
-    async (email: string, password: string, name?: string) => {
-      const u = await authApi.register(email, password, name);
+    async (
+      email: string,
+      password: string,
+      data?: { firstName?: string; lastName?: string; name?: string },
+    ) => {
+      const u = await authApi.register(email, password, data);
       setUser(u);
       setLoading(false);
       return u;
     },
-    []
+    [],
   );
+
+  const updateProfile = useCallback(async (data: UpdateProfilePayload) => {
+    const u = await authApi.updateProfile(data);
+    setUser(u);
+    return u;
+  }, []);
 
   const logout = useCallback(async () => {
     await authApi.logout();
@@ -73,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refetch }}>
+    <AuthContext.Provider value={{ user, loading, login, register, updateProfile, logout, refetch }}>
       {children}
     </AuthContext.Provider>
   );

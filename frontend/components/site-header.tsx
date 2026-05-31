@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Menu, Search, ShoppingBag, User, X } from 'lucide-react';
+import { Menu, Search, ShoppingBag, X } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { CartDrawer } from '@/components/cart-drawer';
 import { useAuth } from '@/context/auth-context';
 import { useCart } from '@/context/cart-context';
+import { AccountNavMenu } from '@/components/account-nav-menu';
 import { NavMegaMenu } from '@/components/nav-mega-menu';
 import { freeShippingThresholdDkk } from '@/lib/currency';
 import {
@@ -22,7 +23,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
   const { itemCount } = useCart();
   const isAdmin = user?.role === 'ADMIN';
 
@@ -31,11 +32,13 @@ export function SiteHeader() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [collectionsOpen, setCollectionsOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMobileOpen(false);
     setCollectionsOpen(false);
+    setAccountOpen(false);
     setCartOpen(false);
     setSearchOpen(false);
   }, [pathname]);
@@ -157,25 +160,12 @@ export function SiteHeader() {
                 <Search size={20} strokeWidth={1.75} />
               )}
             </button>
-            {!loading && (
-              <Link
-                href={user ? (isAdmin ? '/admin' : '/account') : '/login'}
-                className="site-header-icon-btn"
-                aria-label={user ? (isAdmin ? 'Owner area' : 'Account') : 'Log in'}
-                title={user?.email ?? 'Log in'}
-              >
-                <User size={20} strokeWidth={1.75} />
+            {!loading && !user && (
+              <Link href="/login" className="site-header-login-link">
+                Log in
               </Link>
             )}
-            {!loading && user && (
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm site-header-logout"
-                onClick={() => logout()}
-              >
-                Log out
-              </button>
-            )}
+            {!loading && user && <AccountNavMenu />}
             {!isAdmin && (
               <div className="site-header-cart-wrap">
                 <button
@@ -280,36 +270,12 @@ export function SiteHeader() {
               </li>
             )}
             {!loading && user && (
-              <>
-                <li>
-                  <Link
-                    href={isAdmin ? '/admin' : '/account'}
-                    className="mobile-nav-link"
-                    onClick={closeMobile}
-                  >
-                    {isAdmin ? 'Owner area' : 'My account'}
-                  </Link>
-                </li>
-                {!isAdmin && (
-                  <li>
-                    <Link href="/account/favorites" className="mobile-nav-link" onClick={closeMobile}>
-                      Favourites
-                    </Link>
-                  </li>
-                )}
-                <li>
-                  <button
-                    type="button"
-                    className="mobile-nav-link mobile-nav-link--button"
-                    onClick={() => {
-                      closeMobile();
-                      logout();
-                    }}
-                  >
-                    Log out
-                  </button>
-                </li>
-              </>
+              <AccountNavMenu
+                variant="mobile"
+                mobileOpen={accountOpen}
+                onMobileToggle={() => setAccountOpen((open) => !open)}
+                onNavigate={closeMobile}
+              />
             )}
           </ul>
         </div>

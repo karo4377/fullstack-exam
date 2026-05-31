@@ -63,6 +63,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const priceCents = Number(product.priceCents);
   const stock = Number(product.stock);
   const description = String(product.description ?? '');
+  const category = product.category as { id?: string; name?: string; slug?: string } | null | undefined;
   const images = ((product.images as Array<{ url: string }>) ?? [])
     .map((i) => ({ url: resolveProductImageSrc(i?.url) }))
     .filter((i): i is { url: string } => !!i.url);
@@ -74,9 +75,22 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         breadcrumbs={[
           { label: 'Home', href: '/' },
           { label: 'Products', href: '/products' },
+          ...(category?.id && category?.name
+            ? [{ label: category.name, href: `/products?categoryId=${category.id}` }]
+            : []),
           { label: title },
         ]}
       />
+      {category?.name && (
+        <div className="product-tags" aria-label="Categories">
+          <Link
+            href={category.id ? `/products?categoryId=${category.id}` : '/products'}
+            className="product-tag"
+          >
+            {category.name}
+          </Link>
+        </div>
+      )}
       <div className="product-detail-layout">
         <div className="product-gallery">
           {images.length > 0 ? (
@@ -109,7 +123,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           <p className="price">{formatDkk(priceCents)}</p>
           <FavoriteButton productId={id} />
           <p className="description">{description}</p>
-          <p className="stock">In stock: {stock}</p>
+          <p className={`stock ${stock > 0 ? 'stock--in' : 'stock--out'}`}>
+            {stock > 0 ? 'In stock' : 'Out of stock'}
+          </p>
       {user?.role !== 'ADMIN' && stock > 0 && (
         <button
           type="button"

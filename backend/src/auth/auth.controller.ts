@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Req,
   Res,
@@ -11,17 +12,21 @@ import {
 import type { Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { authCookieOptions } from './auth-cookie';
+import { buildDisplayName, normalizeOptional, publicUserSelect, splitFullName } from '../users/user-profile.util';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
+    private readonly usersService: UsersService,
   ) {}
 
   @Post('register')
@@ -33,16 +38,22 @@ export class AuthController {
       throw new UnauthorizedException('Email already in use');
     }
     const hashed = await bcrypt.hash(dto.password, 10);
+    const fromName = splitFullName(dto.name);
+    const firstName = normalizeOptional(dto.firstName) ?? fromName.firstName;
+    const lastName = normalizeOptional(dto.lastName) ?? fromName.lastName;
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
         password: hashed,
-        name: dto.name,
+        name: buildDisplayName(firstName, lastName),
+        firstName,
+        lastName,
       },
+      select: publicUserSelect,
     });
     const token = await this.authService.signToken(user.id, user.role);
     res.cookie('auth', token, authCookieOptions());
-    return { id: user.id, email: user.email, name: user.name, role: user.role };
+    return user;
   }
 
   @Post('login')
@@ -53,7 +64,9 @@ export class AuthController {
     }
     const token = await this.authService.signToken(user.id, user.role);
     res.cookie('auth', token, authCookieOptions());
-    return { id: user.id, email: user.email, name: user.name, role: user.role };
+    const profile = await this.usersService.findPublicById(user.id);
+    if (!profile) throw new UnauthorizedException();
+    return profile;
   }
 
   @Post('logout')
@@ -66,6 +79,16 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async me(@Req() req: Request) {
     return (req as Request & { user: unknown }).user;
+  }
+
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(@Req() req: Request, @Body() dto: UpdateProfileDto) {
+    const user = (req as Request & { user: { id: string; role: string } }).user;
+    if (user.role !== 'CUSTOMER') {
+      throw new UnauthorizedException('Only customers can update a profile');
+    }
+    return this.usersService.updateProfile(user.id, dto);
   }
 }
 

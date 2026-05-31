@@ -8,7 +8,8 @@ import { useAuth } from '@/context/auth-context';
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [error, setError] = useState('');
   const { register } = useAuth();
   const router = useRouter();
@@ -17,8 +18,11 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
     try {
-      const u = await register(email, password, name || undefined);
-      router.push('/account');
+      await register(email, password, {
+        firstName: firstName.trim() || undefined,
+        lastName: lastName.trim() || undefined,
+      });
+      router.push('/account/profile');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     }
@@ -40,12 +44,23 @@ export default function RegisterPage() {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="reg-name">Name (optional)</label>
+          <label htmlFor="reg-first-name">First name</label>
           <input
-            id="reg-name"
+            id="reg-first-name"
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            autoComplete="given-name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="reg-last-name">Last name</label>
+          <input
+            id="reg-last-name"
+            type="text"
+            autoComplete="family-name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
           />
         </div>
         <div className="form-group">
