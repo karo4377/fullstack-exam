@@ -24,6 +24,7 @@ export default function LoginPage() {
   }
 
   return (
+    <div className="page page--narrow">
     <main className="auth-box">
       <h1 className="title-page">Log in</h1>
       <form onSubmit={handleSubmit}>
@@ -56,5 +57,6 @@ export default function LoginPage() {
         No account? <Link href="/register">Register</Link>
       </p>
     </main>
+    </div>
   );
 }

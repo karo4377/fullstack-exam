@@ -154,7 +154,7 @@ export default function AdminEditProductPage() {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="price">Price (e.g. 19.99)</label>
+          <label htmlFor="price">Price in DKK (e.g. 199.00)</label>
           <input
             id="price"
             type="number"

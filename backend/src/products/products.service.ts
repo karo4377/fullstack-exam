@@ -5,10 +5,11 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ProductsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(search?: string) {
+  list(search?: string, categoryId?: string, collection?: string) {
     return this.prisma.product.findMany({
       where: {
         isActive: true,
+        ...(categoryId ? { categoryId } : {}),
         ...(search
           ? {
               OR: [
@@ -19,7 +20,13 @@ export class ProductsService {
           : {}),
       },
       include: { images: { orderBy: { sortOrder: 'asc' } }, artist: true, category: true },
-      orderBy: { createdAt: 'desc' },
+      orderBy:
+        collection === 'new'
+          ? { createdAt: 'desc' }
+          : collection === 'bestsellers'
+            ? { stock: 'asc' }
+            : { createdAt: 'desc' },
+      ...(collection === 'bestsellers' ? { take: 24 } : {}),
     });
   }
 

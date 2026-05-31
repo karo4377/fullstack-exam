@@ -73,5 +73,54 @@ export class OrdersService {
       return order;
     });
   }
+
+  async createGuestOrder(
+    guestEmail: string,
+    items: { productId: string; quantity: number }[],
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      let totalCents = 0;
+      const orderItems: { productId: string; title: string; priceCents: number; quantity: number }[] =
+        [];
+
+      for (const line of items) {
+        const product = await tx.product.findFirst({
+          where: { id: line.productId, isActive: true },
+        });
+        if (!product) {
+          throw new BadRequestException(`Product not found: ${line.productId}`);
+        }
+        if (line.quantity > product.stock) {
+          throw new BadRequestException(`Insufficient stock for ${product.title}`);
+        }
+        totalCents += product.priceCents * line.quantity;
+        orderItems.push({
+          productId: product.id,
+          title: product.title,
+          priceCents: product.priceCents,
+          quantity: line.quantity,
+        });
+      }
+
+      const order = await tx.order.create({
+        data: {
+          guestEmail,
+          totalCents,
+          status: 'PENDING',
+          items: { create: orderItems },
+        },
+        include: { items: true },
+      });
+
+      for (const line of orderItems) {
+        await tx.product.update({
+          where: { id: line.productId },
+          data: { stock: { decrement: line.quantity } },
+        });
+      }
+
+      return order;
+    });
+  }
 }
 

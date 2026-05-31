@@ -6,8 +6,12 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  list(@Query('search') search?: string) {
-    return this.productsService.list(search);
+  list(
+    @Query('search') search?: string,
+    @Query('categoryId') categoryId?: string,
+    @Query('collection') collection?: string,
+  ) {
+    return this.productsService.list(search, categoryId, collection);
   }
 
   @Get(':id')

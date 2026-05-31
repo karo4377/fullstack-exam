@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ImagePlaceholder } from '@/components/image-placeholder';
+import { resolveProductImageSrc } from '@/lib/product-image';
 import { admin } from '@/lib/api';
 
 export default function AdminProductsPage() {
@@ -68,15 +70,19 @@ export default function AdminProductsPage() {
             <tbody>
               {list.map((p: Record<string, unknown>) => {
                 const images = (p.images as Array<{ url: string }>) ?? [];
-                const thumb = images[0]?.url;
+                const thumb = resolveProductImageSrc(images[0]?.url);
                 return (
                 <tr key={String(p.id)}>
                   <td>
-                    {thumb ? <img src={thumb} alt="" className="admin-table-thumb" /> : <span className="admin-table-thumb-placeholder" />}
+                    {thumb ? (
+                      <img src={thumb} alt="" className="admin-table-thumb" />
+                    ) : (
+                      <ImagePlaceholder compact label="—" className="image-placeholder--thumb" />
+                    )}
                   </td>
                   <td>{String(p.title)}</td>
                   <td><code style={{ fontSize: '0.85em' }}>{String(p.slug)}</code></td>
-                  <td>{(Number(p.priceCents) / 100).toFixed(2)}</td>
+                  <td>{(Number(p.priceCents) / 100).toFixed(2)} kr.</td>
                   <td>{String(p.stock)}</td>
                   <td style={{ width: '6rem' }}>{p.isActive ? 'Active' : 'Inactive'}</td>
                   <td>

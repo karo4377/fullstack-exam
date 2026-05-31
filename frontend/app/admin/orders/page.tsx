@@ -43,7 +43,7 @@ export default function AdminOrdersPage() {
                     <td><code style={{ fontSize: '0.85em' }}>{String(o.id).slice(0, 12)}…</code></td>
                     <td>{user ? `${String(user.email ?? '')} ${String(user.name ?? '')}`.trim() || '—' : '—'}</td>
                     <td style={{ textTransform: 'capitalize' }}>{String(o.status ?? '').toLowerCase()}</td>
-                    <td>{(totalCents / 100).toFixed(2)}</td>
+                    <td>{(totalCents / 100).toFixed(2)} kr.</td>
                     <td>{o.createdAt ? new Date(String(o.createdAt)).toLocaleDateString() : '—'}</td>
                   </tr>
                 );
