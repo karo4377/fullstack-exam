@@ -291,7 +291,8 @@ a.btn:focus-visible {
   transition: filter 0.15s;
 }
 
-.product-card.card-link:hover .card-image {
+.product-card.card-link:hover .card-image,
+.product-card:hover .card-image {
   filter: contrast(1.05);
 }
 
@@ -538,6 +539,33 @@ a.btn:focus-visible {
   overflow: hidden;
 }
 
+.card-image-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.product-card-favorite {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  z-index: 2;
+}
+
+.product-card-favorite .favorite-btn--compact {
+  padding: 0.45rem;
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.product-card-favorite .favorite-btn--compact:hover,
+.product-card-favorite .favorite-btn--compact.is-active {
+  background: var(--color-bg-card);
+}
+
 .card-image-wrap .image-placeholder {
   position: absolute;
   inset: 0;
@@ -552,6 +580,15 @@ a.btn:focus-visible {
   flex: 1;
   padding: 1rem 1.15rem 1.15rem;
   border-top: none;
+}
+
+.product-card .card-body.card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.product-card .card-body.card-link:hover {
+  color: inherit;
 }
 
 /* Hero (legacy pages) */

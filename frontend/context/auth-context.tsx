@@ -8,6 +8,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { auth as authApi } from '@/lib/api';
 import type { UpdateProfilePayload, UserProfile } from '@/lib/user-profile';
 
@@ -38,6 +40,8 @@ const AuthContext = createContext<{
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   const refetch = useCallback(async () => {
     try {
@@ -84,7 +88,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await authApi.logout();
     setUser(null);
-  }, []);
+    setLoading(false);
+    queryClient.clear();
+    router.replace('/');
+    router.refresh();
+  }, [queryClient, router]);
 
   return (
     <AuthContext.Provider value={{ user, loading, login, register, updateProfile, logout, refetch }}>
