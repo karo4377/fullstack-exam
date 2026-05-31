@@ -291,7 +291,17 @@ async function main() {
     }
   }
 
-  // Reviews — spread across customers and products
+  const validProductIds = products.map((p) => p.id);
+  const catalogById = new Map(products.map((p) => [p.id, p]));
+
+  await prisma.favorite.deleteMany({ where: { productId: { notIn: validProductIds } } });
+  await prisma.review.deleteMany({ where: { productId: { notIn: validProductIds } } });
+  await prisma.cartItem.deleteMany({ where: { productId: { notIn: validProductIds } } });
+
+  await syncOrderItemsToCatalog(validProductIds, catalogById);
+  await removeUnreferencedLegacyProducts(seedSlugs, handcraftedSlugs);
+
+  // Reviews — spread across customers and current catalogue
   for (let ci = 0; ci < customers.length; ci++) {
     const customer = customers[ci];
     const start = (ci * 4) % products.length;
@@ -326,13 +336,13 @@ async function main() {
     }
   }
 
-  // Order history — 1–2 paid/shipped orders per customer (skip if they already have orders)
+  // Order history — refresh seed customer orders to match current catalogue
+  const seedCustomerIds = customers.map((c) => c.id);
+  await prisma.order.deleteMany({ where: { userId: { in: seedCustomerIds } } });
+
   const statuses: OrderStatus[] = ['PAID', 'SHIPPED', 'PAID'];
   for (let ci = 0; ci < customers.length; ci++) {
     const customer = customers[ci];
-    const existingOrders = await prisma.order.count({ where: { userId: customer.id } });
-    if (existingOrders > 0) continue;
-
     const orderCount = ci % 2 === 0 ? 2 : 1;
     for (let o = 0; o < orderCount; o++) {
       const p1 = products[(ci * 3 + o) % products.length];
@@ -359,6 +369,28 @@ async function main() {
     }
   }
 
+  // Guest demo order — one shipped order with current product snapshots
+  await prisma.order.deleteMany({ where: { guestEmail: 'guest@artshop.local' } });
+  const guestItems = [
+    products[0],
+    products[3],
+    products[8],
+  ].map((p, idx) => ({
+    productId: p.id,
+    title: p.title,
+    priceCents: p.priceCents,
+    quantity: idx === 1 ? 2 : 1,
+  }));
+  await prisma.order.create({
+    data: {
+      guestEmail: 'guest@artshop.local',
+      totalCents: guestItems.reduce((sum, i) => sum + i.priceCents * i.quantity, 0),
+      status: 'SHIPPED',
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      items: { create: guestItems },
+    },
+  });
+
   console.log(
     'Seed done:',
     products.length,
@@ -366,8 +398,71 @@ async function main() {
     customers.length,
     'customers (password customer123);',
     'admin admin@artshop.local / admin123;',
-    'reviews, favourites, and orders created.',
+    'reviews, favourites, and orders synced to catalogue.',
   );
+}
+
+async function syncOrderItemsToCatalog(
+  validProductIds: string[],
+  catalogById: Map<string, { id: string; title: string; priceCents: number }>,
+) {
+  if (validProductIds.length === 0) return;
+
+  const orderItems = await prisma.orderItem.findMany({ orderBy: { id: 'asc' } });
+  for (let i = 0; i < orderItems.length; i++) {
+    const item = orderItems[i];
+    const product = catalogById.get(item.productId);
+    const target =
+      product ?? catalogById.get(validProductIds[i % validProductIds.length])!;
+    const needsUpdate =
+      item.productId !== target.id ||
+      item.title !== target.title ||
+      item.priceCents !== target.priceCents;
+    if (needsUpdate) {
+      await prisma.orderItem.update({
+        where: { id: item.id },
+        data: {
+          productId: target.id,
+          title: target.title,
+          priceCents: target.priceCents,
+        },
+      });
+    }
+  }
+
+  const orders = await prisma.order.findMany({ include: { items: true } });
+  for (const order of orders) {
+    const totalCents = order.items.reduce((sum, item) => sum + item.priceCents * item.quantity, 0);
+    if (totalCents !== order.totalCents) {
+      await prisma.order.update({ where: { id: order.id }, data: { totalCents } });
+    }
+  }
+}
+
+async function removeUnreferencedLegacyProducts(
+  seedSlugs: Set<string>,
+  handcraftedSlugs: Set<string>,
+) {
+  const keepSlugs = new Set([...seedSlugs, ...handcraftedSlugs]);
+  const candidates = await prisma.product.findMany({
+    where: { slug: { notIn: [...keepSlugs] } },
+    select: {
+      id: true,
+      slug: true,
+      _count: { select: { orderItems: true, reviews: true, favorites: true, cartItems: true } },
+    },
+  });
+
+  for (const product of candidates) {
+    const refs =
+      product._count.orderItems +
+      product._count.reviews +
+      product._count.favorites +
+      product._count.cartItems;
+    if (refs === 0) {
+      await prisma.product.delete({ where: { id: product.id } }).catch(() => undefined);
+    }
+  }
 }
 
 main()
