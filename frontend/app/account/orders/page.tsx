@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { formatDkk } from '@/lib/currency';
 import { useQuery } from '@tanstack/react-query';
 import { orders as ordersApi } from '@/lib/api';
 import { useAuth } from '@/context/auth-context';
@@ -45,7 +46,7 @@ export default function OrdersPage() {
                 Order {String(order.id).slice(0, 8)}…
               </Link>
               <p className="order-meta">
-                {(order.totalCents as number) / 100} € · {String(order.status)}
+                {formatDkk(order.totalCents as number)} · {String(order.status)}
               </p>
             </li>
           ))}

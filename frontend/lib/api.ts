@@ -51,9 +51,29 @@ export const auth = {
 };
 
 export const products = {
-  list: (search?: string) =>
-    api<Array<Record<string, unknown>>>(search ? `/products?search=${encodeURIComponent(search)}` : '/products'),
+  list: (params?: { search?: string; categoryId?: string; collection?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.search) q.set('search', params.search);
+    if (params?.categoryId) q.set('categoryId', params.categoryId);
+    if (params?.collection) q.set('collection', params.collection);
+    const qs = q.toString();
+    return api<Array<Record<string, unknown>>>(qs ? `/products?${qs}` : '/products');
+  },
   get: (id: string) => api<Record<string, unknown>>(`/products/${id}`),
+};
+
+export const categories = {
+  list: () => api<Array<{ id: string; slug: string; name: string }>>('/categories'),
+};
+
+export const reviews = {
+  list: (productId: string) =>
+    api<Array<Record<string, unknown>>>(`/products/${productId}/reviews`),
+  create: (productId: string, data: { rating: number; comment?: string }) =>
+    api<Record<string, unknown>>(`/products/${productId}/reviews`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 };
 
 export const cart = {
@@ -76,6 +96,14 @@ export const orders = {
   list: () => api<Array<Record<string, unknown>>>('/orders'),
   get: (id: string) => api<Record<string, unknown>>(`/orders/${id}`),
   create: () => api<Record<string, unknown>>('/orders', { method: 'POST' }),
+  createGuest: (data: {
+    email: string;
+    items: Array<{ productId: string; quantity: number }>;
+  }) =>
+    api<Record<string, unknown>>('/checkout/guest', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 };
 
 export const admin = {

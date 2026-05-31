@@ -1,0 +1,58 @@
+# Local full-stack fallback (exam demo without cloud hosting).
+# Usage: docker compose up --build
+# App: http://localhost:3000  |  API: http://localhost:3001  |  Swagger: http://localhost:3001/api/docs
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: artshop-postgres
+    environment:
+      POSTGRES_USER: artshop
+      POSTGRES_PASSWORD: artshop
+      POSTGRES_DB: artshop
+    ports:
+      - '5433:5432'
+    volumes:
+      - artshop_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U artshop -d artshop']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: artshop-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - '3001:3001'
+    environment:
+      DATABASE_URL: postgresql://artshop:artshop@postgres:5432/artshop
+      JWT_SECRET: dev-docker-secret-change-in-production
+      FRONTEND_URL: http://localhost:3000
+      PORT: '3001'
+      NODE_ENV: development
+    volumes:
+      - backend_uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+    container_name: artshop-frontend
+    depends_on:
+      - backend
+    ports:
+      - '3000:3000'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+
+volumes:
+  artshop_pg_data:
+  backend_uploads:

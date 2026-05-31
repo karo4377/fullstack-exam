@@ -15,6 +15,7 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { authCookieOptions } from './auth-cookie';
 
 @Controller('auth')
 export class AuthController {
@@ -40,12 +41,7 @@ export class AuthController {
       },
     });
     const token = await this.authService.signToken(user.id, user.role);
-    res.cookie('auth', token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: false,
-      path: '/',
-    });
+    res.cookie('auth', token, authCookieOptions());
     return { id: user.id, email: user.email, name: user.name, role: user.role };
   }
 
@@ -56,18 +52,13 @@ export class AuthController {
       throw new UnauthorizedException('Invalid credentials');
     }
     const token = await this.authService.signToken(user.id, user.role);
-    res.cookie('auth', token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: false,
-      path: '/',
-    });
+    res.cookie('auth', token, authCookieOptions());
     return { id: user.id, email: user.email, name: user.name, role: user.role };
   }
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('auth', { path: '/' });
+    res.clearCookie('auth', authCookieOptions());
     return { success: true };
   }
 

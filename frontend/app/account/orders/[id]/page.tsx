@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { formatDkk } from '@/lib/currency';
 import { useQuery } from '@tanstack/react-query';
 import { orders as ordersApi } from '@/lib/api';
 import { useAuth } from '@/context/auth-context';
@@ -24,19 +25,22 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
   if (isLoading) return <main className="page">Loading…</main>;
   if (error || !order) return <main className="page" style={{ color: 'var(--color-error)' }}>Order not found.</main>;
 
-  const items = (order.items as Array<Record<string, unknown>>) ?? [];
+  type OrderItem = { id?: string; title?: string; quantity?: number; priceCents?: number };
+  const items = (order.items as OrderItem[]) ?? [];
 
   return (
     <main className="page product-detail">
       <Link href="/account/orders" className="back-link">← Orders</Link>
       <h1 className="title-page">Order {String(order.id).slice(0, 8)}…</h1>
       <p className="order-meta" style={{ marginBottom: '0.25rem' }}>Status: {String(order.status)}</p>
-      <p className="price" style={{ marginBottom: '1rem' }}>Total: {(order.totalCents as number) / 100} €</p>
+      <p className="price" style={{ marginBottom: '1rem' }}>Total: {formatDkk(Number(order.totalCents))}</p>
       <ul className="list-plain" style={{ marginTop: '1rem' }}>
-        {items.map((item: Record<string, unknown>, i: number) => (
-          <li key={i} className="cart-item">
-            <span>{item.title} × {item.quantity}</span>
-            <span className="card-price">{(Number(item.priceCents) * Number(item.quantity)) / 100} €</span>
+        {items.map((item, i) => (
+          <li key={item.id ?? i} className="cart-item">
+            <span>{String(item.title ?? 'Item')} × {Number(item.quantity ?? 0)}</span>
+            <span className="card-price">
+              {formatDkk(Number(item.priceCents ?? 0) * Number(item.quantity ?? 0))}
+            </span>
           </li>
         ))}
       </ul>

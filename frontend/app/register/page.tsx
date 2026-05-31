@@ -25,6 +25,7 @@ export default function RegisterPage() {
   }
 
   return (
+    <div className="page page--narrow">
     <main className="auth-box">
       <h1 className="title-page">Register</h1>
       <form onSubmit={handleSubmit}>
@@ -67,5 +68,6 @@ export default function RegisterPage() {
         Already have an account? <Link href="/login">Log in</Link>
       </p>
     </main>
+    </div>
   );
 }
