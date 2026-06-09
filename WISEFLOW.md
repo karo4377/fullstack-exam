@@ -10,7 +10,7 @@
 - **Server:** NestJS (TypeScript), REST API, JWT in HTTP-only cookies, CORS, validation, Swagger — hosted on **Render**.
 - **Database:** PostgreSQL on **Neon**, Prisma ORM; migrations, seed (~40 products), SQL views/triggers (see `DATABASE.md`).
 - **Monitoring:** Sentry on backend and frontend (`SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`).
-- **E2E tests:** Cypress (`frontend/cypress/e2e/`).
+- **E2E tests:** Cypress (`frontend/cypress/e2e/`, Cloud project `nj41qj`).
 
 ## Links
 

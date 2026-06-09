@@ -67,6 +67,12 @@ Optional env (defaults shown):
   CYPRESS_API_URL=http://localhost:3001 npm run e2e
   ```
 
+**Cypress Cloud** — project ID `nj41qj` is set in `cypress.config.ts`. To record runs to the dashboard:
+
+```bash
+CYPRESS_RECORD_KEY=your-record-key npm run e2e:record
+```
+
 Specs:
 
 - `cypress/e2e/smoke.cy.ts` – home, navigation, 404 (no API)

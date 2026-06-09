@@ -12,6 +12,7 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "e2e": "cypress run",
+    "e2e:record": "cypress run --record",
     "e2e:open": "cypress open"
   },
   "keywords": [],
