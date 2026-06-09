@@ -15,16 +15,16 @@ describe('Shop — requires API', () => {
 
   it('lists products from the API', () => {
     cy.visit('/products');
-    cy.get('a.product-card', { timeout: 20_000 }).should('have.length.at.least', 1);
-    cy.get('a.product-card').first().click();
+    cy.get('article.product-card', { timeout: 20_000 }).should('have.length.at.least', 1);
+    cy.get('article.product-card').first().find('a.card-link').first().click();
     cy.location('pathname').should('match', /^\/products\/.+/);
     cy.contains('button', 'Add to cart').should('be.visible');
   });
 
   it('filters products with search', () => {
     cy.visit('/products');
-    cy.get('a.product-card', { timeout: 20_000 }).should('have.length.at.least', 1);
-    cy.get('input[type="search"]').type('cat');
-    cy.get('a.product-card').should('have.length.at.least', 1);
+    cy.get('article.product-card', { timeout: 20_000 }).should('have.length.at.least', 1);
+    cy.get('.products-filters input[type="search"]').type('cat');
+    cy.get('article.product-card').should('have.length.at.least', 1);
   });
 });

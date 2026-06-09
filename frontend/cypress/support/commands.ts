@@ -7,10 +7,13 @@ Cypress.Commands.add(
       ['customer', email],
       () => {
         cy.visit('/login');
-        cy.get('#login-email').clear().type(email);
-        cy.get('#login-password').clear().type(password, { log: false });
-        cy.get('form').submit();
-        cy.contains('button', 'Log out', { timeout: 15_000 }).should('be.visible');
+        cy.get('.auth-box form').within(() => {
+          cy.get('#login-email').clear().type(email);
+          cy.get('#login-password').clear().type(password, { log: false });
+          cy.contains('button[type="submit"]', 'Log in').click();
+        });
+        cy.url({ timeout: 15_000 }).should('match', /\/(account|admin)$/);
+        cy.get('.account-nav-greeting', { timeout: 15_000 }).should('contain', 'Hi,');
       },
       { cacheAcrossSpecs: true },
     );

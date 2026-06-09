@@ -18,14 +18,14 @@ describe('Auth — requires API', () => {
       cy.loginAsCustomer(customer.email, customer.password);
     });
     cy.visit('/account');
-    cy.contains('h1', 'My account').should('be.visible');
-    cy.contains('button', 'Log out').should('be.visible');
+    cy.contains('h1', /^Hi, /).should('be.visible');
+    cy.get('.account-nav-greeting').should('contain', 'Hi,');
   });
 
   it('adds a product to the cart when logged in', () => {
     cy.loginAsCustomer();
     cy.visit('/products');
-    cy.get('a.product-card', { timeout: 20_000 }).first().click();
+    cy.get('article.product-card', { timeout: 20_000 }).first().find('a.card-link').first().click();
     cy.contains('button', 'Add to cart').click();
     cy.contains('button', /Added|Adding/).should('be.visible');
     cy.visit('/cart');
