@@ -23,7 +23,10 @@ export default function StudyPage() {
           <ol>
             {studySections.map((section) => (
               <li key={section.id}>
-                <a href={`#${section.id}`}>{section.title}</a>
+                <a href={`#${section.id}`}>
+                  {section.title}
+                  {section.extra ? ' (extra)' : ''}
+                </a>
               </li>
             ))}
           </ol>
@@ -44,14 +47,33 @@ export default function StudyPage() {
         <div className="study-content content-prose">
           {studySections.map((section) => (
             <section key={section.id} id={section.id} className="study-section">
-              <h2>{section.title}</h2>
-              <ul>
+              <h2>
+                {section.title}
+                {section.extra ? <span className="study-extra-badge">Extra</span> : null}
+              </h2>
+              <p className="study-question">
+                <strong>Exam question:</strong> {section.question ?? section.title}
+              </p>
+              <h3 className="study-answer-heading">Answer</h3>
+              <ul className="study-answer-list">
                 {section.points.map((point) => (
                   <li key={point}>{point}</li>
                 ))}
               </ul>
+
+              {section.snippets?.map((snippet) => (
+                <figure key={snippet.caption ?? snippet.code.slice(0, 40)} className="study-code">
+                  {snippet.caption ? (
+                    <figcaption className="study-code-caption">{snippet.caption}</figcaption>
+                  ) : null}
+                  <pre>
+                    <code>{snippet.code}</code>
+                  </pre>
+                </figure>
+              ))}
+
               <div className="study-in-project">
-                <p className="study-in-project-label">In this project</p>
+                <p className="study-in-project-label">In this project ({shopName})</p>
                 <p>{section.inProject}</p>
               </div>
             </section>

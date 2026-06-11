@@ -11,8 +11,8 @@ export function SiteLogo({ className, priority }: SiteLogoProps) {
     <Image
       src={shopLogoSrc}
       alt={shopName}
-      width={781}
-      height={781}
+      width={1147}
+      height={861}
       className={className}
       priority={priority}
     />

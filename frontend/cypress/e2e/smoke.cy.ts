@@ -10,7 +10,7 @@ describe('Smoke — static pages', () => {
     cy.visit('/');
     cy.contains('a', 'Shop prints').click();
     cy.location('pathname').should('eq', '/products');
-    cy.contains('h1', 'Products').should('be.visible');
+    cy.contains('h1', 'Shop posters').should('be.visible');
   });
 
   it('shows the custom 404 page', () => {

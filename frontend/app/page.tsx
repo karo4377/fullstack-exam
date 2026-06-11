@@ -1,11 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { ProductCard } from '@/components/product-card';
 import { products as productsApi } from '@/lib/api';
-import { resolveProductImageSrc } from '@/lib/product-image';
-import { shopHeroTitle } from '@/lib/site';
+import { shopHeroIllustrationSrc, shopHeroTitle } from '@/lib/site';
 
 const FEATURED_COUNT = 8;
 
@@ -17,9 +17,6 @@ export default function HomePage() {
   });
 
   const products = Array.isArray(list) ? list.slice(0, FEATURED_COUNT) : [];
-  const heroProduct = products[0] as Record<string, unknown> | undefined;
-  const heroImages = (heroProduct?.images as Array<{ url: string }>) ?? [];
-  const heroImage = resolveProductImageSrc(heroImages[0]?.url);
 
   return (
     <div className="home">
@@ -42,12 +39,15 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          <div className="home-hero-visual" aria-hidden={!heroImage}>
-            {heroImage ? (
-              <img src={heroImage} alt="" className="home-hero-art" />
-            ) : (
-              <div className="home-hero-art home-hero-art--placeholder" />
-            )}
+          <div className="home-hero-visual" aria-hidden>
+            <Image
+              src={shopHeroIllustrationSrc}
+              alt=""
+              width={2539}
+              height={1475}
+              className="home-hero-illustration"
+              priority
+            />
           </div>
         </section>
 

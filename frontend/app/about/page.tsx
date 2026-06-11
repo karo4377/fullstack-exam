@@ -2,8 +2,6 @@ import Link from 'next/link';
 import { Frame, HandHeart, Leaf, Package } from 'lucide-react';
 import { ImagePlaceholder } from '@/components/image-placeholder';
 import { PageHeader } from '@/components/page-header';
-import { shopName } from '@/lib/site';
-
 const VALUES = [
   {
     icon: Leaf,
@@ -42,7 +40,7 @@ export default function AboutPage() {
     <div className="page page--about">
       <PageHeader
         title="Our story"
-        subtitle={`${shopName} started with a simple idea: art for kids' rooms should feel gentle, honest, and worth keeping.`}
+        subtitle="Calm, honest art for children's rooms."
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'About' }]}
       />
 
@@ -60,6 +58,27 @@ export default function AboutPage() {
           <p>
             Nothing leaves the studio until we&apos;ve checked colour, crop, and packaging. It&apos;s
             a small operation, and we like it that way.
+          </p>
+          <p>
+            Tiny Frames began when we went looking for nursery art that felt thoughtful rather than
+            disposable — prints with personality, but without the loud colours and licensed characters
+            that seem to take over every shelf. We wanted pieces that could sit quietly on the wall
+            for years, then move to a sibling&apos;s room or a grandparent&apos;s hallway when the
+            time came.
+          </p>
+          <p>
+            Today we partner closely with each illustrator, from first sketch to final giclée proof.
+            Papers are archival and FSC-certified where possible; inks are chosen for longevity, not
+            just punch on screen. Most of what we sell is open edition, so you never have to rush —
+            but when a limited original appears, we photograph it in daylight and list it honestly,
+            flaws included.
+          </p>
+          <p>
+            Whether you&apos;re framing a first print for a newborn or refreshing a corner for a
+            curious six-year-old, we&apos;re glad you&apos;re here. Browse at your own pace, and if
+            you&apos;re unsure about size or pairing,{' '}
+            <Link href="/contact" className="text-link">drop us a line</Link> — we answer every
+            message from the studio.
           </p>
         </div>
         <figure className="about-intro-visual">

@@ -133,6 +133,62 @@ const SEED_CUSTOMERS = [
   },
 ];
 
+const POSTER_CATEGORIES = [
+  { slug: 'babar', name: 'Babar' },
+  { slug: 'pippi-longstocking', name: 'Pippi Longstocking' },
+  { slug: 'moomin', name: 'Moomin' },
+  { slug: 'batman', name: 'Batman' },
+  { slug: 'harry-potter', name: 'Harry Potter' },
+  { slug: 'peter-rabbit', name: 'Peter Rabbit' },
+  { slug: 'snoopy', name: 'Snoopy' },
+  { slug: 'animals', name: 'Animals' },
+  { slug: 'nursery', name: 'Nursery' },
+] as const;
+
+const LEGACY_CATEGORY_SLUGS = ['prints', 'stickers', 'originals'];
+
+function inferPosterCategorySlug(title: string): string {
+  const t = title.toLowerCase();
+  if (t.includes('babar')) return 'babar';
+  if (t.includes('pippi')) return 'pippi-longstocking';
+  if (t.includes('moomin')) return 'moomin';
+  if (t.includes('batman')) return 'batman';
+  if (t.includes('harry potter')) return 'harry-potter';
+  if (t.includes('peter rabbit')) return 'peter-rabbit';
+  if (t.includes('snoopy')) return 'snoopy';
+  if (/tigerunge|løve|\blove\b|giraffe|krokodille|kaniner|bunnies|bunny|flyvende kaniner/.test(t)) {
+    return 'animals';
+  }
+  return 'nursery';
+}
+
+async function syncPosterCategories() {
+  const categoryBySlug = new Map<string, string>();
+  for (const cat of POSTER_CATEGORIES) {
+    const row = await prisma.category.upsert({
+      where: { slug: cat.slug },
+      create: { slug: cat.slug, name: cat.name },
+      update: { name: cat.name },
+    });
+    categoryBySlug.set(cat.slug, row.id);
+  }
+
+  const products = await prisma.product.findMany({ select: { id: true, title: true, categoryId: true } });
+  for (const product of products) {
+    const categoryId = categoryBySlug.get(inferPosterCategorySlug(product.title));
+    if (categoryId && product.categoryId !== categoryId) {
+      await prisma.product.update({ where: { id: product.id }, data: { categoryId } });
+    }
+  }
+
+  for (const legacySlug of LEGACY_CATEGORY_SLUGS) {
+    const legacy = await prisma.category.findUnique({ where: { slug: legacySlug } });
+    if (!legacy) continue;
+    const count = await prisma.product.count({ where: { categoryId: legacy.id } });
+    if (count === 0) await prisma.category.delete({ where: { id: legacy.id } }).catch(() => undefined);
+  }
+}
+
 const REVIEW_COMMENTS = [
   'Lovely quality and fast delivery!',
   'Perfect for our nursery wall.',
@@ -223,21 +279,17 @@ async function main() {
     customers.push(user);
   }
 
-  const prints = await prisma.category.upsert({
-    where: { slug: 'prints' },
-    create: { slug: 'prints', name: 'Prints' },
-    update: {},
-  });
-  const stickers = await prisma.category.upsert({
-    where: { slug: 'stickers' },
-    create: { slug: 'stickers', name: 'Stickers' },
-    update: {},
-  });
-  const originals = await prisma.category.upsert({
-    where: { slug: 'originals' },
-    create: { slug: 'originals', name: 'Originals' },
-    update: {},
-  });
+  for (const cat of POSTER_CATEGORIES) {
+    await prisma.category.upsert({
+      where: { slug: cat.slug },
+      create: { slug: cat.slug, name: cat.name },
+      update: { name: cat.name },
+    });
+  }
+  const nursery = await prisma.category.findUniqueOrThrow({ where: { slug: 'nursery' } });
+  const prints = nursery;
+  const stickers = nursery;
+  const originals = nursery;
 
   const productData: Array<{
     slug: string;
@@ -293,7 +345,9 @@ async function main() {
     const product = await prisma.product.upsert({
       where: { slug: p.slug },
       create: data,
-      update: { title: p.title, description: p.description, priceCents: p.priceCents, stock: p.stock, categoryId: p.categoryId },
+      update: preserveCatalog
+        ? { priceCents: p.priceCents, stock: p.stock, description: p.description }
+        : { title: p.title, description: p.description, priceCents: p.priceCents, stock: p.stock, categoryId: p.categoryId },
     });
     products.push({ id: product.id, priceCents: product.priceCents, title: product.title });
     const existingImages = await prisma.productImage.findMany({ where: { productId: product.id } });
@@ -404,6 +458,8 @@ async function main() {
       items: { create: guestItems },
     },
   });
+
+  await syncPosterCategories();
 
   console.log(
     'Seed done:',

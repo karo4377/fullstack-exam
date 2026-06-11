@@ -12,6 +12,8 @@ import { products as productsApi, reviews as reviewsApi } from '@/lib/api';
 import { useAuth } from '@/context/auth-context';
 import { useCart } from '@/context/cart-context';
 
+const IMAGE_LABELS = ['Poster', 'Room view'];
+
 export default function ProductPage({ params }: { params: { id: string } }) {
   const { id } = params;
   const { user } = useAuth();
@@ -29,6 +31,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     setSelectedImageIndex(0);
   }, [id]);
+
   const { data: reviewList = [] } = useQuery({
     queryKey: ['reviews', id],
     queryFn: () => reviewsApi.list(id),
@@ -56,8 +59,31 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     },
   });
 
-  if (isLoading) return <main className="page">Loading…</main>;
-  if (error || !product) return <main className="page" style={{ color: 'var(--color-error)' }}>Product not found.</main>;
+  if (isLoading) {
+    return (
+      <main className="page page--product-detail">
+        <p className="products-status">Loading poster…</p>
+      </main>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <main className="page page--product-detail">
+        <PageHeader
+          variant="compact"
+          breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Shop', href: '/products' }]}
+        />
+        <div className="products-empty">
+          <p className="products-empty-title">Poster not found</p>
+          <p className="products-empty-text">It may have been removed or the link is incorrect.</p>
+          <Link href="/products" className="btn btn-secondary btn-pill">
+            Back to shop
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   const title = String(product.title);
   const priceCents = Number(product.priceCents);
@@ -68,119 +94,193 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     .map((i) => ({ url: resolveProductImageSrc(i?.url) }))
     .filter((i): i is { url: string } => !!i.url);
 
+  const reviews = Array.isArray(reviewList) ? reviewList : [];
+  const inStock = stock > 0;
+
+  const showNextImage = () => {
+    if (images.length < 2) return;
+    setSelectedImageIndex((i) => (i + 1) % images.length);
+  };
+
   return (
-    <main className="page product-detail">
+    <main className="page page--product-detail product-detail">
       <PageHeader
-        title={title}
+        variant="compact"
         breadcrumbs={[
           { label: 'Home', href: '/' },
-          { label: 'Products', href: '/products' },
+          { label: 'Shop', href: '/products' },
           ...(category?.id && category?.name
             ? [{ label: category.name, href: `/products?categoryId=${category.id}` }]
             : []),
           { label: title },
         ]}
       />
-      {category?.name && (
-        <div className="product-tags" aria-label="Categories">
-          <Link
-            href={category.id ? `/products?categoryId=${category.id}` : '/products'}
-            className="product-tag"
-          >
-            {category.name}
-          </Link>
-        </div>
-      )}
+
       <div className="product-detail-layout">
-        <div className="product-gallery">
-          {images.length > 0 ? (
-            <>
-              <div className="product-gallery-main">
+        <div className="product-gallery-column">
+          <div className="product-gallery">
+            {images.length > 0 ? (
+              <div
+                className={`product-gallery-main${images.length > 1 ? ' product-gallery-main--clickable' : ''}`}
+                role={images.length > 1 ? 'button' : undefined}
+                tabIndex={images.length > 1 ? 0 : undefined}
+                aria-label={images.length > 1 ? 'Show next product image' : undefined}
+                onClick={showNextImage}
+                onKeyDown={(e) => {
+                  if (images.length < 2) return;
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    showNextImage();
+                  }
+                }}
+              >
                 <img src={images[selectedImageIndex]?.url ?? images[0].url} alt={title} />
               </div>
-              {images.length > 1 && (
-                <div className="product-gallery-thumbs">
-                  {images.map((img, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      className={`product-gallery-thumb ${selectedImageIndex === i ? 'is-selected' : ''}`}
-                      onClick={() => setSelectedImageIndex(i)}
-                      aria-label={`View image ${i + 1}`}
-                      aria-pressed={selectedImageIndex === i}
-                    >
-                      <img src={img.url} alt="" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <ImagePlaceholder label="No image" className="image-placeholder--gallery" />
+            ) : (
+              <ImagePlaceholder label="No image" className="image-placeholder--gallery" />
+            )}
+          </div>
+
+          {images.length > 1 && (
+            <div className="product-gallery-picker" role="tablist" aria-label="Product images">
+              {images.map((img, i) => (
+                <button
+                  key={img.url}
+                  type="button"
+                  role="tab"
+                  className={`product-gallery-picker-btn${selectedImageIndex === i ? ' is-selected' : ''}`}
+                  onClick={() => setSelectedImageIndex(i)}
+                  aria-label={`View ${IMAGE_LABELS[i] ?? `image ${i + 1}`}`}
+                  aria-selected={selectedImageIndex === i}
+                >
+                  <img src={img.url} alt="" />
+                  <span className="product-gallery-picker-label">
+                    {IMAGE_LABELS[i] ?? `View ${i + 1}`}
+                  </span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
-        <div className="product-detail-info">
-          <p className="price">{formatDkk(priceCents)}</p>
-          <FavoriteButton productId={id} />
-          <p className="description">{description}</p>
-          <p className={`stock ${stock > 0 ? 'stock--in' : 'stock--out'}`}>
-            {stock > 0 ? 'In stock' : 'Out of stock'}
-          </p>
-      {user?.role !== 'ADMIN' && stock > 0 && (
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => handleAddToCart(1)}
-          disabled={addStatus === 'loading'}
-          style={{ marginTop: '0.5rem' }}
-        >
-          {addStatus === 'loading' ? 'Adding…' : addStatus === 'done' ? 'Added' : 'Add to cart'}
-        </button>
-      )}
-      {user?.role === 'ADMIN' && (
-        <div className="product-admin-actions">
-          <Link href={`/admin/products/${id}/edit`} className="btn btn-primary">
-            Edit product
-          </Link>
-          <p className="product-admin-note">Admins don’t place orders. Use a customer account to buy.</p>
-        </div>
-      )}
+
+        <div className="product-detail-panel">
+          {category?.name && (
+            <Link
+              href={category.id ? `/products?categoryId=${category.id}` : '/products'}
+              className="products-category-pill product-detail-category"
+            >
+              {category.name}
+            </Link>
+          )}
+
+          <h1 className="product-detail-title">{title}</h1>
+
+          <div className="product-detail-price-row">
+            <p className="price">{formatDkk(priceCents)}</p>
+            <span className={`product-stock-badge${inStock ? ' product-stock-badge--in' : ' product-stock-badge--out'}`}>
+              {inStock ? 'In stock' : 'Out of stock'}
+            </span>
+          </div>
+
+          {description && <p className="product-detail-description">{description}</p>}
+
+          <ul className="product-detail-perks">
+            <li>Premium paper, ready to frame</li>
+            <li>Ships flat in protective packaging</li>
+            <li>14-day returns on unused prints</li>
+          </ul>
+
+          <div className="product-detail-purchase">
+            {user?.role !== 'ADMIN' && inStock && (
+              <button
+                type="button"
+                className="btn btn-primary btn-pill product-detail-add"
+                onClick={() => handleAddToCart(1)}
+                disabled={addStatus === 'loading'}
+              >
+                {addStatus === 'loading' ? 'Adding…' : addStatus === 'done' ? 'Added to cart' : 'Add to cart'}
+              </button>
+            )}
+            {user?.role !== 'ADMIN' && !inStock && (
+              <p className="product-detail-unavailable">Currently out of stock — check back soon.</p>
+            )}
+            {user?.role === 'ADMIN' && (
+              <div className="product-admin-actions">
+                <Link href={`/admin/products/${id}/edit`} className="btn btn-primary btn-pill">
+                  Edit product
+                </Link>
+                <p className="product-admin-note">Admins don’t place orders. Use a customer account to buy.</p>
+              </div>
+            )}
+            <div className="product-detail-save">
+              <FavoriteButton productId={id} />
+            </div>
+          </div>
+
+          {category?.name && category?.id && (
+            <Link
+              href={`/products?categoryId=${category.id}`}
+              className="product-detail-more"
+            >
+              More in {category.name}
+            </Link>
+          )}
         </div>
       </div>
 
-      <section className="product-reviews" style={{ marginTop: '2.5rem' }}>
-        <h2 className="home-section-title">Reviews</h2>
-        <ul className="list-plain">
-          {(Array.isArray(reviewList) ? reviewList : []).map((r) => {
-            const review = r as { id: string; rating?: number; comment?: string | null; user?: { name?: string } };
-            return (
-            <li key={String(review.id)} className="review-item">
-              <strong>{'★'.repeat(Number(review.rating ?? 0))}</strong>
-              <span style={{ color: 'var(--color-text-muted)', marginLeft: '0.5rem' }}>
-                {review.user?.name || 'Customer'}
-              </span>
-              {review.comment ? <p style={{ margin: '0.35rem 0 0' }}>{review.comment}</p> : null}
-            </li>
-            );
-          })}
-        </ul>
-        {(Array.isArray(reviewList) ? reviewList : []).length === 0 && (
-          <p style={{ color: 'var(--color-text-muted)' }}>No reviews yet.</p>
+      <section className="product-reviews" aria-labelledby="product-reviews-title">
+        <header className="product-reviews-header">
+          <h2 id="product-reviews-title" className="product-reviews-title">
+            Reviews
+          </h2>
+          <p className="product-reviews-count">
+            {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
+          </p>
+        </header>
+
+        {reviews.length > 0 ? (
+          <ul className="product-reviews-list">
+            {reviews.map((r) => {
+              const review = r as {
+                id: string;
+                rating?: number;
+                comment?: string | null;
+                user?: { name?: string };
+              };
+              return (
+                <li key={String(review.id)} className="product-review-card">
+                  <div className="product-review-card-head">
+                    <span className="product-review-stars" aria-hidden>
+                      {'★'.repeat(Number(review.rating ?? 0))}
+                      <span className="visually-hidden">{review.rating} out of 5 stars</span>
+                    </span>
+                    <span className="product-review-author">{review.user?.name || 'Customer'}</span>
+                  </div>
+                  {review.comment ? <p className="product-review-comment">{review.comment}</p> : null}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="product-reviews-empty">No reviews yet — be the first to share your thoughts.</p>
         )}
+
         {user?.role === 'CUSTOMER' && (
           <form
-            className="card"
-            style={{ padding: '1rem', marginTop: '1rem', maxWidth: '480px' }}
+            className="product-review-form"
             onSubmit={(e) => {
               e.preventDefault();
               submitReview.mutate();
             }}
           >
+            <h3 className="product-review-form-title">Write a review</h3>
             <div className="form-group">
               <label htmlFor="rating">Rating</label>
               <select id="rating" value={rating} onChange={(e) => setRating(Number(e.target.value))}>
                 {[5, 4, 3, 2, 1].map((n) => (
-                  <option key={n} value={n}>{n} stars</option>
+                  <option key={n} value={n}>
+                    {n} stars
+                  </option>
                 ))}
               </select>
             </div>
@@ -189,7 +289,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <textarea id="comment" rows={3} value={comment} onChange={(e) => setComment(e.target.value)} />
             </div>
             {submitReview.isError && (
-              <p className="form-error">{submitReview.error instanceof Error ? submitReview.error.message : 'Failed'}</p>
+              <p className="form-error">
+                {submitReview.error instanceof Error ? submitReview.error.message : 'Failed'}
+              </p>
             )}
             <button type="submit" className="btn btn-primary" disabled={submitReview.isPending}>
               {submitReview.isPending ? 'Submitting…' : 'Submit review'}

@@ -9,16 +9,10 @@ import { CartDrawer } from '@/components/cart-drawer';
 import { useAuth } from '@/context/auth-context';
 import { useCart } from '@/context/cart-context';
 import { AccountNavMenu } from '@/components/account-nav-menu';
-import { NavMegaMenu } from '@/components/nav-mega-menu';
 import { freeShippingThresholdDkk } from '@/lib/currency';
 import { SiteBrandName } from '@/components/site-brand-name';
 import { SiteLogo } from '@/components/site-logo';
-import {
-  collectionsNavMenu,
-  mainNav,
-  shopAllLink,
-  shopTagline,
-} from '@/lib/site';
+import { mainNav, shopAllLink, shopTagline } from '@/lib/site';
 import { navLinkClass } from '@/lib/site-nav';
 
 export function SiteHeader() {
@@ -33,13 +27,11 @@ export function SiteHeader() {
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [collectionsOpen, setCollectionsOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMobileOpen(false);
-    setCollectionsOpen(false);
     setAccountOpen(false);
     setCartOpen(false);
     setSearchOpen(false);
@@ -126,12 +118,6 @@ export function SiteHeader() {
             >
               {shopAllLink.label}
             </Link>
-            <NavMegaMenu
-              id="collections"
-              label="Collections"
-              groups={collectionsNavMenu}
-              pathname={pathname}
-            />
             {mainNav.map((item) => (
               <Link
                 key={item.href}
@@ -228,16 +214,6 @@ export function SiteHeader() {
                 {shopAllLink.label}
               </Link>
             </li>
-            <NavMegaMenu
-              id="mobile-collections"
-              label="Collections"
-              groups={collectionsNavMenu}
-              pathname={pathname}
-              variant="mobile"
-              mobileOpen={collectionsOpen}
-              onMobileToggle={() => setCollectionsOpen((open) => !open)}
-              onNavigate={closeMobile}
-            />
             {mainNav.map((item) => (
               <li key={item.href}>
                 <Link href={item.href} className="mobile-nav-link" onClick={closeMobile}>

@@ -1,42 +1,12 @@
 export const shopName = 'Tiny Frames';
-export const shopLogoSrc = '/logo_transparent.png';
-export const shopFaviconSrc = '/logo_white.png';
+export const shopLogoSrc = '/elephant.svg';
+export const shopFaviconSrc = '/elephant.png';
 export const shopTagline = 'Nordic prints for kids\' rooms';
 export const shopHeroTitle = 'Art for little walls';
+export const shopHeroIllustrationSrc = '/elephant-illustration-transparent.png';
 export const shopContactEmail = 'hello@tinyframes.local';
 
-export type NavMenuGroup = {
-  title: string;
-  links: { label: string; href: string }[];
-};
-
 export const shopAllLink = { href: '/products', label: 'Shop all' } as const;
-
-export const collectionsNavMenu: NavMenuGroup[] = [
-  {
-    title: 'By theme',
-    links: [
-      { label: 'Geometric Botanicals', href: '/products?search=botanical' },
-      { label: 'Polish Folklore', href: '/products?search=folklore' },
-      { label: 'Abstract', href: '/products?search=abstract' },
-    ],
-  },
-  {
-    title: 'By format',
-    links: [
-      { label: 'Framed Prints', href: '/products?search=framed' },
-      { label: 'Canvas', href: '/products?search=canvas' },
-      { label: 'Posters Only', href: '/products?search=poster' },
-    ],
-  },
-  {
-    title: 'Curated',
-    links: [
-      { label: 'Bestsellers', href: '/products?collection=bestsellers' },
-      { label: 'New Arrivals', href: '/products?collection=new' },
-    ],
-  },
-];
 
 export const mainNav = [
   { href: '/about', label: 'About' },
