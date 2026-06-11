@@ -411,6 +411,67 @@ a.btn:focus-visible {
   box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.35);
 }
 
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 2.75rem;
+}
+
+.password-field__toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.65rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  border: none;
+  background: transparent;
+  color: rgba(74, 93, 78, 0.65);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.password-field__toggle:hover {
+  color: #4a5d4e;
+  background: rgba(226, 238, 219, 0.5);
+}
+
+.password-field__toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.45);
+}
+
+.auth-forgot-link {
+  display: block;
+  margin: -0.25rem 0 0.75rem;
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.auth-forgot-link a {
+  color: #d4a373;
+  text-decoration: none;
+}
+
+.auth-forgot-link a:hover {
+  text-decoration: underline;
+}
+
+.auth-success-message {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #4a5d4e;
+  background: rgba(226, 238, 219, 0.55);
+  border: 1px solid #e2eedb;
+  border-radius: 12px;
+}
+
 .form-group textarea,
 .form-group select {
   width: 100%;
@@ -1501,6 +1562,13 @@ a.btn:focus-visible {
 
 .auth-box__title {
   margin-bottom: 1.5rem;
+}
+
+.auth-box__lead {
+  margin: -0.75rem 0 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgba(74, 93, 78, 0.85);
 }
 
 .auth-split {

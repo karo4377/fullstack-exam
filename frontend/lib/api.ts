@@ -57,6 +57,16 @@ export const auth = {
       body: JSON.stringify(data),
     }),
   logout: () => api<{ success: boolean }>('/auth/logout', { method: 'POST' }),
+  forgotPassword: (email: string) =>
+    api<{ message: string }>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+  resetPassword: (token: string, password: string) =>
+    api<{ message: string }>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
+    }),
 };
 
 export const products = {

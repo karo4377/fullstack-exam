@@ -13,10 +13,12 @@ import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { CategoriesModule } from './categories/categories.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
     SentryModule.forRoot(),
+    MailModule,
     PrismaModule,
     UsersModule,
     ProductsModule,

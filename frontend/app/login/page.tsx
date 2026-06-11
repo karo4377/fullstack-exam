@@ -1,10 +1,21 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { AuthSocialPanel } from '@/components/auth-social-panel';
+import { PasswordField } from '@/components/password-field';
 import { useAuth } from '@/context/auth-context';
+
+function LoginSuccessBanner() {
+  const searchParams = useSearchParams();
+  if (searchParams.get('reset') !== 'success') return null;
+  return (
+    <p className="auth-success-message" role="status">
+      Your password has been updated. You can log in now.
+    </p>
+  );
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -29,6 +40,10 @@ export default function LoginPage() {
       <main className="auth-box auth-box--split">
         <h1 className="title-page auth-box__title">Log in</h1>
 
+        <Suspense fallback={null}>
+          <LoginSuccessBanner />
+        </Suspense>
+
         <div className="auth-split">
           <section className="auth-split__col" aria-labelledby="login-credentials-heading">
             <h2 id="login-credentials-heading" className="auth-split__heading">
@@ -45,16 +60,17 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="login-password">Password</label>
-                <input
-                  id="login-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
+              <PasswordField
+                id="login-password"
+                label="Password"
+                value={password}
+                onChange={setPassword}
+                required
+                autoComplete="current-password"
+              />
+              <p className="auth-forgot-link">
+                <Link href="/forgot-password">Forgot password?</Link>
+              </p>
               {error && <p className="form-error">{error}</p>}
               <div className="form-actions">
                 <button type="submit" className="btn btn-primary">

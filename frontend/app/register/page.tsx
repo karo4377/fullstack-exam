@@ -4,11 +4,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AuthSocialPanel } from '@/components/auth-social-panel';
+import { PasswordField } from '@/components/password-field';
 import { useAuth } from '@/context/auth-context';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [error, setError] = useState('');
@@ -18,6 +20,10 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
     try {
       await register(email, password, {
         firstName: firstName.trim() || undefined,
@@ -70,17 +76,24 @@ export default function RegisterPage() {
                   onChange={(e) => setLastName(e.target.value)}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="reg-password">Password</label>
-                <input
-                  id="reg-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
+              <PasswordField
+                id="reg-password"
+                label="Password"
+                value={password}
+                onChange={setPassword}
+                required
+                minLength={6}
+                autoComplete="new-password"
+              />
+              <PasswordField
+                id="reg-password-confirm"
+                label="Confirm password"
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                required
+                minLength={6}
+                autoComplete="new-password"
+              />
               {error && <p className="form-error">{error}</p>}
               <div className="form-actions">
                 <button type="submit" className="btn btn-primary">

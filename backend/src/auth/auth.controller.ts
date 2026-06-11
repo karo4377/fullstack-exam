@@ -16,8 +16,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { AuthService, type OAuthLoginResult } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { authCookieOptions } from './auth-cookie';
 import { FacebookAuthGuard } from './facebook-auth.guard';
@@ -92,6 +94,21 @@ export class AuthController {
   @UseGuards(FacebookAuthGuard)
   async facebookAuthCallback(@Req() req: Request, @Res() res: Response) {
     await this.finishOAuthLogin((req as Request & { user: OAuthLoginResult }).user, res);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    await this.authService.requestPasswordReset(dto.email);
+    return {
+      message:
+        'If an account with that email exists, we have sent password reset instructions.',
+    };
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    await this.authService.resetPassword(dto.token, dto.password);
+    return { message: 'Your password has been updated. You can log in now.' };
   }
 
   @Post('login')
