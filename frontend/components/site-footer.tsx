@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { Share2 } from 'lucide-react';
+import { SiteBrandName } from '@/components/site-brand-name';
+import { SiteLogo } from '@/components/site-logo';
 import {
   footerCustomerServiceLinks,
   footerLegalLinks,
@@ -91,8 +93,9 @@ export function SiteFooter() {
       </div>
       <div className="site-footer-bottom">
         <div className="site-footer-brand-row">
-          <Link href="/" className="site-footer-logo">
-            {shopName}
+          <Link href="/" className="site-footer-logo" aria-label="Tiny Frames home">
+            <SiteLogo className="site-logo site-logo--footer" />
+            <SiteBrandName className="site-footer-logo-name" />
           </Link>
           <div className="site-footer-social" aria-label="Social media">
             <a

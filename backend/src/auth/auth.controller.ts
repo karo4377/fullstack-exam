@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import type { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
@@ -19,6 +20,8 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { authCookieOptions } from './auth-cookie';
+import { FacebookAuthGuard } from './facebook-auth.guard';
+import { GoogleAuthGuard } from './google-auth.guard';
 import { buildDisplayName, normalizeOptional, publicUserSelect, splitFullName } from '../users/user-profile.util';
 
 @Controller('auth')
@@ -28,6 +31,14 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
   ) {}
+
+  private async finishOAuthLogin(user: User, res: Response) {
+    const token = await this.authService.signToken(user.id, user.role);
+    res.cookie('auth', token, authCookieOptions());
+    const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+    const path = user.role === 'ADMIN' ? '/admin' : '/account';
+    res.redirect(`${frontendUrl}${path}`);
+  }
 
   @Post('register')
   async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
@@ -54,6 +65,30 @@ export class AuthController {
     const token = await this.authService.signToken(user.id, user.role);
     res.cookie('auth', token, authCookieOptions());
     return user;
+  }
+
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  googleAuth() {
+    // Passport redirects to Google.
+  }
+
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
+    await this.finishOAuthLogin((req as Request & { user: User }).user, res);
+  }
+
+  @Get('facebook')
+  @UseGuards(FacebookAuthGuard)
+  facebookAuth() {
+    // Passport redirects to Facebook.
+  }
+
+  @Get('facebook/callback')
+  @UseGuards(FacebookAuthGuard)
+  async facebookAuthCallback(@Req() req: Request, @Res() res: Response) {
+    await this.finishOAuthLogin((req as Request & { user: User }).user, res);
   }
 
   @Post('login')

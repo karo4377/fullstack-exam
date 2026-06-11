@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { AdminSubnav } from '@/components/admin-subnav';
 import { PageHeader } from '@/components/page-header';
 import { useAuth } from '@/context/auth-context';
+import { shopName } from '@/lib/site';
 
 function getAdminPageMeta(pathname: string) {
   if (pathname === '/admin') {
@@ -46,7 +47,7 @@ function getAdminPageMeta(pathname: string) {
   }
   return {
     title: 'Owner area',
-    subtitle: 'Manage your ARTSHOP.',
+    subtitle: `Manage your ${shopName}.`,
   };
 }
 

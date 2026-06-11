@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { PageHeader } from '@/components/page-header';
+import { shopName } from '@/lib/site';
 import { studyIntro, studySections } from '@/lib/study-content';
 
 export const metadata = {
-  title: 'Exam study guide | ARTSHOP',
-  description: 'Full-stack exam revision tied to the ARTSHOP project.',
+  title: 'Exam study guide',
+  description: `Full-stack exam revision tied to the ${shopName} project.`,
 };
 
 export default function StudyPage() {

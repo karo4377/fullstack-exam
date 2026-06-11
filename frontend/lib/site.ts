@@ -1,5 +1,9 @@
-export const shopName = 'ARTSHOP';
+export const shopName = 'Tiny Frames';
+export const shopLogoSrc = '/logo_transparent.png';
+export const shopFaviconSrc = '/logo_white.png';
 export const shopTagline = 'Nordic prints for kids\' rooms';
+export const shopHeroTitle = 'Art for little walls';
+export const shopContactEmail = 'hello@tinyframes.local';
 
 export type NavMenuGroup = {
   title: string;
@@ -55,6 +59,7 @@ export const footerCustomerServiceLinks = [
 export const footerLegalLinks = [
   { href: '/terms', label: 'Terms of Service' },
   { href: '/privacy', label: 'Privacy Policy' },
+  { href: '/data-deletion', label: 'User data deletion' },
   { href: '/study', label: 'Exam study guide' },
 ] as const;
 

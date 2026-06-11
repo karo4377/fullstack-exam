@@ -11,11 +11,12 @@ import { useCart } from '@/context/cart-context';
 import { AccountNavMenu } from '@/components/account-nav-menu';
 import { NavMegaMenu } from '@/components/nav-mega-menu';
 import { freeShippingThresholdDkk } from '@/lib/currency';
+import { SiteBrandName } from '@/components/site-brand-name';
+import { SiteLogo } from '@/components/site-logo';
 import {
   collectionsNavMenu,
   mainNav,
   shopAllLink,
-  shopName,
   shopTagline,
 } from '@/lib/site';
 import { navLinkClass } from '@/lib/site-nav';
@@ -113,8 +114,9 @@ export function SiteHeader() {
             )}
           </button>
 
-          <Link href="/" className="site-brand">
-            {shopName}
+          <Link href="/" className="site-brand" aria-label="Tiny Frames home">
+            <SiteLogo className="site-logo" priority />
+            <SiteBrandName className="site-brand-name" />
           </Link>
 
           <nav className="site-nav site-nav--desktop" aria-label="Main">

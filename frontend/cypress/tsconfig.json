@@ -5,7 +5,8 @@
     "types": ["cypress", "node"],
     "isolatedModules": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "strict": true,
     "noEmit": true
   },

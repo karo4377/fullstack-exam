@@ -138,9 +138,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         </button>
       )}
       {user?.role === 'ADMIN' && (
-        <p style={{ marginTop: '1rem', color: 'var(--color-text-muted)' }}>
-          Admins don’t place orders. Use a customer account to buy.
-        </p>
+        <div className="product-admin-actions">
+          <Link href={`/admin/products/${id}/edit`} className="btn btn-primary">
+            Edit product
+          </Link>
+          <p className="product-admin-note">Admins don’t place orders. Use a customer account to buy.</p>
+        </div>
       )}
         </div>
       </div>

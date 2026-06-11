@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export async function api<T>(
   path: string,
@@ -38,6 +38,8 @@ export async function api<T>(
 import type { UpdateProfilePayload, UserProfile } from './user-profile';
 
 export const auth = {
+  googleLoginUrl: () => `${API_BASE}/auth/google`,
+  facebookLoginUrl: () => `${API_BASE}/auth/facebook`,
   me: () => api<UserProfile>('/auth/me'),
   login: (email: string, password: string) =>
     api<UserProfile>('/auth/login', {

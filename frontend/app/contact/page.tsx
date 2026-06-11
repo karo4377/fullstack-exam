@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { PageHeader } from '@/components/page-header';
+import { shopContactEmail, shopName } from '@/lib/site';
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
@@ -26,15 +27,15 @@ export default function ContactPage() {
         <div className="content-prose contact-info">
           <h2>Studio</h2>
           <p>
-            ARTSHOP
+            {shopName}
             <br />
             Example Street 12
             <br />
             1000 Copenhagen, Denmark
           </p>
           <p>
-            <a href="mailto:hello@artshop.local" className="text-link">
-              hello@artshop.local
+            <a href={`mailto:${shopContactEmail}`} className="text-link">
+              {shopContactEmail}
             </a>
           </p>
           <p>We reply within one business day.</p>
@@ -52,7 +53,7 @@ export default function ContactPage() {
               <h2>Message sent</h2>
               <p>
                 Thanks, {name || 'friend'}. This demo does not send email — in production your message
-                would reach our team at hello@artshop.local.
+                would reach our team at {shopContactEmail}.
               </p>
               <button type="button" className="btn btn-secondary" onClick={() => setSent(false)}>
                 Send another

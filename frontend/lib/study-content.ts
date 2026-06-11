@@ -1,3 +1,5 @@
+import { shopName } from '@/lib/site';
+
 export type StudySection = {
   id: string;
   title: string;
@@ -6,7 +8,7 @@ export type StudySection = {
 };
 
 export const studyIntro =
-  'Quick revision for the full-stack exam. Each topic explains the concept and how this ARTSHOP project (Next.js + NestJS + PostgreSQL) implements it.';
+  `Quick revision for the full-stack exam. Each topic explains the concept and how this ${shopName} project (Next.js + NestJS + PostgreSQL) implements it.`;
 
 export const studySections: StudySection[] = [
   {

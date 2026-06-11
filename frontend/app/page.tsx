@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ProductCard } from '@/components/product-card';
 import { products as productsApi } from '@/lib/api';
 import { resolveProductImageSrc } from '@/lib/product-image';
+import { shopHeroTitle } from '@/lib/site';
 
 const FEATURED_COUNT = 8;
 
@@ -26,7 +27,7 @@ export default function HomePage() {
         <section className="home-hero" aria-labelledby="home-hero-title">
           <div className="home-hero-copy">
             <h1 id="home-hero-title" className="home-hero-title">
-              Art for little walls
+              {shopHeroTitle}
             </h1>
             <p className="home-hero-subtitle">
               Soft prints and originals for kids&apos; rooms — calm colours, simple shapes, and

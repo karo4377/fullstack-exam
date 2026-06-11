@@ -1,5 +1,6 @@
 import { PageHeader } from '@/components/page-header';
 import { formatDkk, freeShippingThresholdDkk } from '@/lib/currency';
+import { shopContactEmail } from '@/lib/site';
 
 export default function ShippingPage() {
   return (
@@ -34,8 +35,8 @@ export default function ShippingPage() {
         </p>
         <p>
           To start a return, email us at{' '}
-          <a href="mailto:hello@artshop.local" className="text-link">
-            hello@artshop.local
+          <a href={`mailto:${shopContactEmail}`} className="text-link">
+            {shopContactEmail}
           </a>{' '}
           with your order number. We send a prepaid label for EU returns when applicable.
         </p>

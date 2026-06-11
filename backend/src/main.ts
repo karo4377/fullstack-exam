@@ -48,8 +48,8 @@ async function bootstrap() {
   });
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Cute Art Shop API')
-    .setDescription('REST API for the art webshop (auth, products, cart, orders, reviews)')
+    .setTitle('Tiny Frames API')
+    .setDescription('REST API for Tiny Frames (auth, products, cart, orders, reviews)')
     .setVersion('1.0')
     .addCookieAuth('auth')
     .build();

@@ -34,7 +34,7 @@ export class CloudinaryService {
     const result = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
-          folder: 'artshop/products',
+          folder: 'tiny-frames/products',
           resource_type: 'image',
           format: mimeType.includes('png') ? 'png' : 'jpg',
         },

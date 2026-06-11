@@ -31,8 +31,8 @@ export default function AdminUsersPage() {
       {list.length === 0 ? (
         <p className="empty-state">No other users yet.</p>
       ) : (
-        <div className="admin-table-wrap">
-          <table className="admin-table">
+        <div className="admin-table-wrap admin-table-wrap--stack">
+          <table className="admin-table admin-table--stack">
             <thead>
               <tr>
                 <th>Email</th>
@@ -47,19 +47,28 @@ export default function AdminUsersPage() {
             <tbody>
               {list.map((u: Record<string, unknown>) => (
                 <tr key={String(u.id)}>
-                  <td>{String(u.email)}</td>
-                  <td>{String(u.name ?? '—')}</td>
-                  <td><span style={{ textTransform: 'capitalize' }}>{String(u.role).toLowerCase()}</span></td>
-                  <td>{u.isActive === false ? 'Inactive' : 'Active'}</td>
-                  <td>{u._count && typeof u._count === 'object' && 'orders' in u._count ? String((u._count as { orders: number }).orders) : '—'}</td>
-                  <td>{u.createdAt ? new Date(String(u.createdAt)).toLocaleDateString() : '—'}</td>
-                  <td>
+                  <td data-label="Email">{String(u.email)}</td>
+                  <td data-label="Name">{String(u.name ?? '—')}</td>
+                  <td data-label="Role">
+                    <span style={{ textTransform: 'capitalize' }}>{String(u.role).toLowerCase()}</span>
+                  </td>
+                  <td data-label="Status">{u.isActive === false ? 'Inactive' : 'Active'}</td>
+                  <td data-label="Orders">
+                    {u._count && typeof u._count === 'object' && 'orders' in u._count
+                      ? String((u._count as { orders: number }).orders)
+                      : '—'}
+                  </td>
+                  <td data-label="Joined">
+                    {u.createdAt ? new Date(String(u.createdAt)).toLocaleDateString() : '—'}
+                  </td>
+                  <td data-label="Actions" className="admin-table-cell--actions">
                     <button
                       type="button"
                       className={u.isActive === false ? 'btn btn-secondary btn-sm' : 'btn btn-ghost btn-sm'}
-                      style={{ padding: '0.4rem 0.75rem', fontSize: '0.9rem' }}
                       disabled={updateUserMutation.isPending}
-                      onClick={() => updateUserMutation.mutate({ id: String(u.id), isActive: u.isActive === false })}
+                      onClick={() =>
+                        updateUserMutation.mutate({ id: String(u.id), isActive: u.isActive === false })
+                      }
                     >
                       {u.isActive === false ? 'Activate' : 'Deactivate'}
                     </button>

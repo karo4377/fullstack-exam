@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { useAuth } from '@/context/auth-context';
 import { userFirstName } from '@/lib/user-display';
+import { shopName } from '@/lib/site';
 import { formatSavedAddress, isProfileComplete, userFullName } from '@/lib/user-profile';
 
 const ACCOUNT_TILES = [
@@ -57,7 +58,7 @@ export default function AccountPage() {
           breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Account' }]}
         />
         <div className="account-guest-card card">
-          <h2 className="account-guest-title">Welcome to ARTSHOP</h2>
+          <h2 className="account-guest-title">Welcome to {shopName}</h2>
           <p className="account-guest-text">
             Create a free account to keep your delivery details on file and pick up where you left off.
           </p>

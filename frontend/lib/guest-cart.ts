@@ -3,7 +3,7 @@ export type GuestCartLine = {
   quantity: number;
 };
 
-const STORAGE_KEY = 'artshop_guest_cart';
+const STORAGE_KEY = 'tiny_frames_guest_cart';
 
 export function readGuestCart(): GuestCartLine[] {
   if (typeof window === 'undefined') return [];
