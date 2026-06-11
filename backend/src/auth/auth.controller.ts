@@ -14,7 +14,7 @@ import type { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
-import { AuthService } from './auth.service';
+import { AuthService, type OAuthLoginResult } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -32,11 +32,14 @@ export class AuthController {
     private readonly usersService: UsersService,
   ) {}
 
-  private async finishOAuthLogin(user: User, res: Response) {
+  private async finishOAuthLogin(result: OAuthLoginResult, res: Response) {
+    const { user, isNew } = result;
     const token = await this.authService.signToken(user.id, user.role);
     res.cookie('auth', token, authCookieOptions());
     const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
-    const path = user.role === 'ADMIN' ? '/admin' : '/account';
+    let path = '/account';
+    if (user.role === 'ADMIN') path = '/admin';
+    else if (isNew) path = '/account/profile';
     res.redirect(`${frontendUrl}${path}`);
   }
 
@@ -76,7 +79,7 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
-    await this.finishOAuthLogin((req as Request & { user: User }).user, res);
+    await this.finishOAuthLogin((req as Request & { user: OAuthLoginResult }).user, res);
   }
 
   @Get('facebook')
@@ -88,7 +91,7 @@ export class AuthController {
   @Get('facebook/callback')
   @UseGuards(FacebookAuthGuard)
   async facebookAuthCallback(@Req() req: Request, @Res() res: Response) {
-    await this.finishOAuthLogin((req as Request & { user: User }).user, res);
+    await this.finishOAuthLogin((req as Request & { user: OAuthLoginResult }).user, res);
   }
 
   @Post('login')

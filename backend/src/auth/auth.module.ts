@@ -5,11 +5,8 @@ import { UsersModule } from '../users/users.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { FacebookStrategy } from './facebook.strategy';
-import { GoogleStrategy } from './google.strategy';
 import { JwtStrategy } from './jwt.strategy';
-import { FacebookAuthGuard } from './facebook-auth.guard';
-import { GoogleAuthGuard } from './google-auth.guard';
+import { oauthProviders } from './oauth.providers';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './roles.guard';
 
@@ -24,16 +21,7 @@ import { RolesGuard } from './roles.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    GoogleStrategy,
-    FacebookStrategy,
-    JwtStrategy,
-    GoogleAuthGuard,
-    FacebookAuthGuard,
-    JwtAuthGuard,
-    RolesGuard,
-  ],
+  providers: [AuthService, JwtStrategy, JwtAuthGuard, RolesGuard, ...oauthProviders()],
   exports: [AuthService, JwtAuthGuard, RolesGuard],
 })
 export class AuthModule {}

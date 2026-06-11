@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { AuthSocialPanel } from '@/components/auth-social-panel';
 import { useAuth } from '@/context/auth-context';
 
 export default function RegisterPage() {
@@ -29,60 +30,77 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="page page--narrow">
-    <main className="auth-box">
-      <h1 className="title-page">Register</h1>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="reg-email">Email</label>
-          <input
-            id="reg-email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <div className="page page--auth">
+      <main className="auth-box auth-box--split">
+        <h1 className="title-page auth-box__title">Register</h1>
+
+        <div className="auth-split">
+          <section className="auth-split__col" aria-labelledby="register-credentials-heading">
+            <h2 id="register-credentials-heading" className="auth-split__heading">
+              Email &amp; password
+            </h2>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="reg-email">Email</label>
+                <input
+                  id="reg-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="reg-first-name">First name</label>
+                <input
+                  id="reg-first-name"
+                  type="text"
+                  autoComplete="given-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="reg-last-name">Last name</label>
+                <input
+                  id="reg-last-name"
+                  type="text"
+                  autoComplete="family-name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="reg-password">Password</label>
+                <input
+                  id="reg-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
+              {error && <p className="form-error">{error}</p>}
+              <div className="form-actions">
+                <button type="submit" className="btn btn-primary">
+                  Register
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <div className="auth-split__divider" role="presentation">
+            <span>or</span>
+          </div>
+
+          <AuthSocialPanel id="register-social-heading" mode="register" />
         </div>
-        <div className="form-group">
-          <label htmlFor="reg-first-name">First name</label>
-          <input
-            id="reg-first-name"
-            type="text"
-            autoComplete="given-name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="reg-last-name">Last name</label>
-          <input
-            id="reg-last-name"
-            type="text"
-            autoComplete="family-name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="reg-password">Password</label>
-          <input
-            id="reg-password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-          />
-        </div>
-        {error && <p className="form-error">{error}</p>}
-        <div className="form-actions">
-          <button type="submit" className="btn btn-primary">Register</button>
-        </div>
-      </form>
-      <p className="footer-link">
-        Already have an account? <Link href="/login">Log in</Link>
-      </p>
-    </main>
+
+        <p className="footer-link">
+          Already have an account? <Link href="/login">Log in</Link>
+        </p>
+      </main>
     </div>
   );
 }

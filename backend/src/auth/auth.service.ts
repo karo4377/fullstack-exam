@@ -1,9 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import type { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { buildDisplayName } from '../users/user-profile.util';
 import { UsersService } from '../users/users.service';
+
+export type OAuthLoginResult = { user: User; isNew: boolean };
 
 type OAuthProfile = {
   provider: string;
@@ -29,7 +32,7 @@ export class AuthService {
     return user;
   }
 
-  async findOrCreateOAuthUser(profile: OAuthProfile) {
+  async findOrCreateOAuthUser(profile: OAuthProfile): Promise<OAuthLoginResult> {
     const email = profile.email.toLowerCase().trim();
     const existingAccount = await this.prisma.account.findUnique({
       where: {
@@ -41,7 +44,7 @@ export class AuthService {
       include: { user: true },
     });
     if (existingAccount?.user.isActive) {
-      return existingAccount.user;
+      return { user: existingAccount.user, isNew: false };
     }
 
     const existingUser = await this.usersService.findByEmail(email);
@@ -63,12 +66,12 @@ export class AuthService {
         },
         update: {},
       });
-      return existingUser;
+      return { user: existingUser, isNew: false };
     }
 
     const firstName = profile.firstName?.trim() || undefined;
     const lastName = profile.lastName?.trim() || undefined;
-    return this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: {
         email,
         firstName,
@@ -82,6 +85,7 @@ export class AuthService {
         },
       },
     });
+    return { user, isNew: true };
   }
 
   async signToken(userId: string, role: string) {

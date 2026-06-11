@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { AuthSocialPanel } from '@/components/auth-social-panel';
 import { useAuth } from '@/context/auth-context';
-import { auth as authApi } from '@/lib/api';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -68,20 +68,7 @@ export default function LoginPage() {
             <span>or</span>
           </div>
 
-          <section className="auth-split__col" aria-labelledby="login-social-heading">
-            <h2 id="login-social-heading" className="auth-split__heading">
-              Social login
-            </h2>
-            <p className="auth-split__hint">Use an account you already have.</p>
-            <div className="auth-social-buttons">
-              <a href={authApi.googleLoginUrl()} className="btn btn-secondary btn-social btn-social--google">
-                Continue with Google
-              </a>
-              <a href={authApi.facebookLoginUrl()} className="btn btn-secondary btn-social btn-social--facebook">
-                Continue with Facebook
-              </a>
-            </div>
-          </section>
+          <AuthSocialPanel id="login-social-heading" mode="login" />
         </div>
 
         <p className="footer-link">
