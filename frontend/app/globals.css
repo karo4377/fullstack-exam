@@ -4928,14 +4928,18 @@ html:has(.page--study) {
   color: var(--color-text-muted);
 }
 
-.study-answer-list {
+.study-answer {
   margin: 0 0 1rem;
-  padding-left: 1.25rem;
-  line-height: 1.65;
 }
 
-.study-answer-list li + li {
-  margin-top: 0.45rem;
+.study-answer p {
+  margin: 0 0 0.85rem;
+  line-height: 1.7;
+  font-size: 0.97rem;
+}
+
+.study-answer p:last-child {
+  margin-bottom: 0;
 }
 
 .study-code {
@@ -4963,6 +4967,225 @@ html:has(.page--study) {
 .study-code code {
   font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
   white-space: pre;
+}
+
+.study-print-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-top: 1.25rem;
+  padding: 0.85rem 1rem;
+  background: var(--color-bg-card);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.study-print-hint {
+  margin: 0;
+  flex: 1;
+  min-width: 12rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.study-print-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* Study guide — ink-saving print layout */
+@media print {
+  @page {
+    margin: 1cm 1.1cm;
+    size: A4;
+  }
+
+  html:has(.page--study),
+  html:has(.page--study) body {
+    background: #fff !important;
+    background-color: #fff !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: economy;
+    print-color-adjust: economy;
+  }
+
+  /* No tinted panels, shadows, or fills — plain white page */
+  html:has(.page--study) *:not(html):not(body),
+  html:has(.page--study) *::before,
+  html:has(.page--study) *::after {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+
+  html:has(.page--study) .site-header,
+  html:has(.page--study) .site-footer,
+  html:has(.page--study) .study-print-bar {
+    display: none !important;
+  }
+
+  html:has(.page--study) .site-shell,
+  html:has(.page--study) .site-main {
+    display: block !important;
+    min-height: 0 !important;
+  }
+
+  html:has(.page--study) .page--study {
+    max-width: none;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  html:has(.page--study) .page-header {
+    width: auto !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 0 0.6rem !important;
+    margin-bottom: 0.75rem !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    border: none !important;
+    overflow: visible !important;
+  }
+
+  html:has(.page--study) .page-header::before {
+    display: none !important;
+    background: none !important;
+  }
+
+  html:has(.page--study) .breadcrumbs {
+    display: none;
+  }
+
+  html:has(.page--study) .page-header .title-page {
+    font-size: 1.35rem;
+    color: #000 !important;
+    margin-bottom: 0.2rem;
+  }
+
+  html:has(.page--study) .page-header .subtitle {
+    font-size: 0.9rem;
+    color: #000 !important;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+
+  html:has(.page--study) .study-layout {
+    display: block;
+    margin-top: 0;
+    gap: 0;
+  }
+
+  html:has(.page--study) .study-toc,
+  html:has(.page--study) .study-code {
+    display: none !important;
+  }
+
+  /* All study text black — overrides theme link/accent colors */
+  html:has(.page--study) .page-header,
+  html:has(.page--study) .study-content,
+  html:has(.page--study) .study-content * {
+    color: #000 !important;
+  }
+
+  html:has(.page--study) .study-section {
+    scroll-margin-top: 0;
+    padding-bottom: 0.45rem;
+    margin-bottom: 0.45rem;
+    border: none !important;
+    /* Keep each topic on one page — move to next page if it would be cut */
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  html:has(.page--study) .study-section h2 {
+    font-size: 10pt;
+    color: #000 !important;
+    margin: 0.5rem 0 0.2rem;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  html:has(.page--study) .study-section:first-child h2 {
+    margin-top: 0;
+  }
+
+  html:has(.page--study) .study-extra-badge {
+    border: none !important;
+    padding: 0 0 0 0.35rem;
+  }
+
+  html:has(.page--study) .study-extra-badge::before {
+    content: '(';
+  }
+
+  html:has(.page--study) .study-extra-badge::after {
+    content: ')';
+  }
+
+  html:has(.page--study) .study-question {
+    margin: 0.15rem 0 0.3rem;
+    padding: 0;
+    font-size: 8.5pt;
+    border: none !important;
+    border-radius: 0;
+  }
+
+  html:has(.page--study) .study-answer-heading {
+    font-size: 8pt;
+    margin-bottom: 0.25rem;
+  }
+
+  html:has(.page--study) .study-answer {
+    margin: 0 0 0.35rem;
+  }
+
+  html:has(.page--study) .study-answer p {
+    margin: 0 0 0.45rem;
+    font-size: 8.5pt;
+    line-height: 1.45;
+  }
+
+  html:has(.page--study) .study-code {
+    margin: 0 0 0.35rem;
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  html:has(.page--study) .study-code-caption {
+    font-size: 8pt;
+  }
+
+  html:has(.page--study) .study-in-project {
+    margin-top: 0.25rem;
+    padding: 0;
+    border: none !important;
+    border-radius: 0;
+  }
+
+  html:has(.page--study) .study-in-project-label {
+    font-size: 7.5pt;
+  }
+
+  html:has(.page--study) .study-in-project p:last-child {
+    font-size: 8pt;
+  }
+
+  html:has(.page--study) a {
+    text-decoration: underline;
+  }
+
+  html:has(.page--study) .content-prose a::after {
+    content: none;
+  }
 }
 
 /* FAQ */

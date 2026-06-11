@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { PageHeader } from '@/components/page-header';
+import { StudyPrintButton } from '@/components/study-print-button';
 import { shopName } from '@/lib/site';
 import { studyIntro, studySections } from '@/lib/study-content';
 
@@ -16,6 +17,8 @@ export default function StudyPage() {
         subtitle={studyIntro}
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Study guide' }]}
       />
+
+      <StudyPrintButton />
 
       <div className="study-layout">
         <nav className="study-toc" aria-label="Topics">
@@ -55,11 +58,11 @@ export default function StudyPage() {
                 <strong>Exam question:</strong> {section.question ?? section.title}
               </p>
               <h3 className="study-answer-heading">Answer</h3>
-              <ul className="study-answer-list">
-                {section.points.map((point) => (
-                  <li key={point}>{point}</li>
+              <div className="study-answer">
+                {section.answer.map((paragraph) => (
+                  <p key={paragraph.slice(0, 48)}>{paragraph}</p>
                 ))}
-              </ul>
+              </div>
 
               {section.snippets?.map((snippet) => (
                 <figure key={snippet.caption ?? snippet.code.slice(0, 40)} className="study-code">
