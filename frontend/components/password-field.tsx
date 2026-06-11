@@ -44,7 +44,7 @@ export function PasswordField({
           aria-label={visible ? 'Hide password' : 'Show password'}
           aria-pressed={visible}
         >
-          {visible ? <EyeOff size={18} aria-hidden /> : <Eye size={18} aria-hidden />}
+          {visible ? <Eye size={18} aria-hidden /> : <EyeOff size={18} aria-hidden />}
         </button>
       </div>
     </div>
