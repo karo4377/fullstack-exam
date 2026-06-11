@@ -1,8 +1,10 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import type { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { memoryStorage } from 'multer';
+import { mkdirSync, writeFileSync } from 'fs';
 import { extname, join } from 'path';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { ProductsService } from '../products/products.service';
 import { UsersService } from '../users/users.service';
 import { OrdersService } from '../orders/orders.service';
@@ -29,6 +31,7 @@ function imageFileFilter(
 @Roles('ADMIN')
 export class AdminController {
   constructor(
+    private readonly cloudinaryService: CloudinaryService,
     private readonly productsService: ProductsService,
     private readonly usersService: UsersService,
     private readonly ordersService: OrdersService,
@@ -38,22 +41,30 @@ export class AdminController {
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: join(process.cwd(), 'uploads'),
-        filename: (_req, file, cb) => {
-          const ext = extname(file.originalname).toLowerCase() || '.jpg';
-          const name = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}${ext}`;
-          cb(null, name);
-        },
-      }),
+      storage: memoryStorage(),
       fileFilter: imageFileFilter,
       limits: { fileSize: 5 * 1024 * 1024 },
     }),
   )
-  uploadImage(@Req() req: Request, @UploadedFile() file: { filename: string } | undefined) {
+  async uploadImage(
+    @Req() req: Request,
+    @UploadedFile() file: { buffer: Buffer; mimetype: string; originalname: string } | undefined,
+  ) {
     if (!file) throw new BadRequestException('No file uploaded');
+
+    if (this.cloudinaryService.isConfigured()) {
+      const { url } = await this.cloudinaryService.uploadProductImage(file.buffer, file.mimetype);
+      return { url };
+    }
+
+    // Fallback when Cloudinary env vars are missing (local dev without CDN)
+    const ext = extname(file.originalname).toLowerCase() || '.jpg';
+    const name = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}${ext}`;
+    const dest = join(process.cwd(), 'uploads');
+    mkdirSync(dest, { recursive: true });
+    writeFileSync(join(dest, name), file.buffer);
     const base = `${req.protocol}://${req.get('host')}`;
-    return { url: `${base}/uploads/${file.filename}` };
+    return { url: `${base}/uploads/${name}` };
   }
 
   @Get('users')

@@ -36,6 +36,7 @@ export const collectionsNavMenu: NavMenuGroup[] = [
 
 export const mainNav = [
   { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact us' },
 ] as const;
 
 export const footerShopLinks = [

@@ -3,6 +3,10 @@ import { OrderStatus, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+/** On production (or when SEED_PRESERVE_CATALOG=true), only upsert demo data — never delete admin products. */
+const preserveCatalog =
+  process.env.NODE_ENV === 'production' || process.env.SEED_PRESERVE_CATALOG === 'true';
+
 type CategoryTheme = {
   suffix: string;
   adjectives: string[];
@@ -165,6 +169,12 @@ function seedPriceForCategory(key: 'prints' | 'stickers' | 'originals', index: n
 }
 
 async function main() {
+  if (preserveCatalog) {
+    console.log(
+      'Safe seed mode: upserting demo users/products only — admin-created catalogue rows are preserved.',
+    );
+  }
+
   const passwordHash = await bcrypt.hash('customer123', 10);
   const adminHash = await bcrypt.hash('admin123', 10);
 
@@ -174,9 +184,10 @@ async function main() {
       email: 'admin@artshop.local',
       password: adminHash,
       name: 'Shop Owner',
+      firstName: 'Admin',
       role: 'ADMIN',
     },
-    update: { password: adminHash, role: 'ADMIN', name: 'Shop Owner' },
+    update: { password: adminHash, role: 'ADMIN', name: 'Shop Owner', firstName: 'Admin' },
   });
 
   const customers: Array<{ id: string; email: string; name: string | null }> = [];
@@ -263,14 +274,16 @@ async function main() {
     'sticker-set-cats',
     'mini-original-abstract',
   ]);
-  const existingProducts = await prisma.product.findMany({ select: { id: true, slug: true } });
-  for (const existing of existingProducts) {
-    if (seedSlugs.has(existing.slug) || handcraftedSlugs.has(existing.slug)) continue;
-    const isLegacyGenerated =
-      /^[a-z]+-[a-z]+-\d+$/.test(existing.slug) ||
-      /^(prints|stickers|originals)-/.test(existing.slug);
-    if (isLegacyGenerated) {
-      await prisma.product.delete({ where: { id: existing.id } }).catch(() => undefined);
+  if (!preserveCatalog) {
+    const existingProducts = await prisma.product.findMany({ select: { id: true, slug: true } });
+    for (const existing of existingProducts) {
+      if (seedSlugs.has(existing.slug) || handcraftedSlugs.has(existing.slug)) continue;
+      const isLegacyGenerated =
+        /^[a-z]+-[a-z]+-\d+$/.test(existing.slug) ||
+        /^(prints|stickers|originals)-/.test(existing.slug);
+      if (isLegacyGenerated) {
+        await prisma.product.delete({ where: { id: existing.id } }).catch(() => undefined);
+      }
     }
   }
 
@@ -294,12 +307,13 @@ async function main() {
   const validProductIds = products.map((p) => p.id);
   const catalogById = new Map(products.map((p) => [p.id, p]));
 
-  await prisma.favorite.deleteMany({ where: { productId: { notIn: validProductIds } } });
-  await prisma.review.deleteMany({ where: { productId: { notIn: validProductIds } } });
-  await prisma.cartItem.deleteMany({ where: { productId: { notIn: validProductIds } } });
-
-  await syncOrderItemsToCatalog(validProductIds, catalogById);
-  await removeUnreferencedLegacyProducts(seedSlugs, handcraftedSlugs);
+  if (!preserveCatalog) {
+    await prisma.favorite.deleteMany({ where: { productId: { notIn: validProductIds } } });
+    await prisma.review.deleteMany({ where: { productId: { notIn: validProductIds } } });
+    await prisma.cartItem.deleteMany({ where: { productId: { notIn: validProductIds } } });
+    await syncOrderItemsToCatalog(validProductIds, catalogById);
+    await removeUnreferencedLegacyProducts(seedSlugs, handcraftedSlugs);
+  }
 
   // Reviews — spread across customers and current catalogue
   for (let ci = 0; ci < customers.length; ci++) {

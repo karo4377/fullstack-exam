@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { PageHeader } from '@/components/page-header';
 import { ProductCard } from '@/components/product-card';
 import { products as productsApi } from '@/lib/api';
+import { resolveProductImageSrc } from '@/lib/product-image';
 
 const FEATURED_COUNT = 8;
 
@@ -16,24 +16,39 @@ export default function HomePage() {
   });
 
   const products = Array.isArray(list) ? list.slice(0, FEATURED_COUNT) : [];
+  const heroProduct = products[0] as Record<string, unknown> | undefined;
+  const heroImages = (heroProduct?.images as Array<{ url: string }>) ?? [];
+  const heroImage = resolveProductImageSrc(heroImages[0]?.url);
 
   return (
     <div className="home">
       <div className="page page--home">
-        <PageHeader
-          title="Art for little walls"
-          subtitle="Soft prints and originals for kids' rooms — calm colours, simple shapes, and pieces you'd happily hang above a reading nook."
-          actions={
-            <>
-              <Link href="/products" className="btn btn-primary btn-lg">
-                Shop prints
+        <section className="home-hero" aria-labelledby="home-hero-title">
+          <div className="home-hero-copy">
+            <h1 id="home-hero-title" className="home-hero-title">
+              Art for little walls
+            </h1>
+            <p className="home-hero-subtitle">
+              Soft prints and originals for kids&apos; rooms — calm colours, simple shapes, and
+              pieces you&apos;d happily hang above a reading nook.
+            </p>
+            <div className="home-hero-actions">
+              <Link href="/products" className="btn btn-primary btn-lg btn-pill">
+                Shop the collection
               </Link>
-              <Link href="/about" className="btn btn-secondary">
+              <Link href="/about" className="btn btn-secondary btn-pill">
                 Our story
               </Link>
-            </>
-          }
-        />
+            </div>
+          </div>
+          <div className="home-hero-visual" aria-hidden={!heroImage}>
+            {heroImage ? (
+              <img src={heroImage} alt="" className="home-hero-art" />
+            ) : (
+              <div className="home-hero-art home-hero-art--placeholder" />
+            )}
+          </div>
+        </section>
 
         <section className="home-block" aria-labelledby="home-products-title">
           <header className="home-block-header">
@@ -87,10 +102,10 @@ export default function HomePage() {
             <p>Shipping, returns, and friendly help — we usually reply within a day.</p>
           </div>
           <div className="home-cta-actions">
-            <Link href="/faq" className="btn btn-secondary">
+            <Link href="/faq" className="btn btn-secondary btn-pill">
               Read FAQ
             </Link>
-            <Link href="/contact" className="btn btn-primary">
+            <Link href="/contact" className="btn btn-primary btn-pill">
               Contact us
             </Link>
           </div>

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, User } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { userFirstName } from '@/lib/user-display';
 
@@ -35,6 +36,28 @@ export function AccountNavMenu({
 }: AccountNavMenuProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: MouseEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
 
   if (!user) return null;
 
@@ -43,6 +66,7 @@ export function AccountNavMenu({
   const links = isAdmin ? ADMIN_LINKS : CUSTOMER_LINKS;
 
   const handleLogout = () => {
+    setOpen(false);
     onNavigate?.();
     void logout();
   };
@@ -88,12 +112,14 @@ export function AccountNavMenu({
   }
 
   return (
-    <div className="account-nav nav-dropdown">
+    <div ref={rootRef} className={`account-nav nav-dropdown${open ? ' is-open' : ''}`}>
       <button
         type="button"
         className="account-nav-trigger"
         aria-haspopup="menu"
+        aria-expanded={open}
         aria-label={`Account menu for ${firstName}`}
+        onClick={() => setOpen((value) => !value)}
       >
         <User size={18} strokeWidth={1.75} aria-hidden />
         <span className="account-nav-greeting">Hi, {firstName}!</span>
@@ -107,6 +133,7 @@ export function AccountNavMenu({
                 href={link.href}
                 role="menuitem"
                 className={link.match(pathname) ? 'is-active' : undefined}
+                onClick={() => setOpen(false)}
               >
                 {link.label}
               </Link>

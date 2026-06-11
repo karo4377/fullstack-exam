@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useClientSearchParams } from '@/lib/use-client-search-params';
 import { ChevronDown } from 'lucide-react';
 import { isCollectionsNavActive } from '@/lib/site-nav';
 import type { NavMenuGroup } from '@/lib/site';
@@ -27,7 +27,7 @@ export function NavMegaMenu({
   mobileOpen = false,
   onMobileToggle,
 }: NavMegaMenuProps) {
-  const searchParams = useSearchParams();
+  const searchParams = useClientSearchParams();
   const isActive = isCollectionsNavActive(pathname, searchParams);
 
   if (variant === 'mobile') {

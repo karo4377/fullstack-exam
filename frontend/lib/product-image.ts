@@ -17,7 +17,17 @@ export function isDemoPlaceholderImage(url?: string | null): boolean {
   }
 }
 
+/** Apply Cloudinary auto-format/quality when serving stored CDN URLs. */
+function optimizeCloudinaryUrl(url: string): string {
+  if (!url.includes('res.cloudinary.com') || url.includes('/f_auto') || url.includes('/q_auto')) {
+    return url;
+  }
+  return url.replace('/upload/', '/upload/f_auto,q_auto/');
+}
+
 export function resolveProductImageSrc(url?: string | null): string | undefined {
   if (isDemoPlaceholderImage(url)) return undefined;
-  return url?.trim() || undefined;
+  const trimmed = url?.trim();
+  if (!trimmed) return undefined;
+  return optimizeCloudinaryUrl(trimmed);
 }

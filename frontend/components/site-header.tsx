@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useClientSearchParams } from '@/lib/use-client-search-params';
 import { Menu, Search, ShoppingBag, X } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { CartDrawer } from '@/components/cart-drawer';
@@ -21,7 +22,7 @@ import { navLinkClass } from '@/lib/site-nav';
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const searchParams = useClientSearchParams();
   const router = useRouter();
   const { user, loading } = useAuth();
   const { itemCount } = useCart();
@@ -243,11 +244,18 @@ export function SiteHeader() {
               </li>
             ))}
             {!loading && isAdmin && (
-              <li>
-                <Link href="/admin/products" className="mobile-nav-link" onClick={closeMobile}>
-                  Manage products
-                </Link>
-              </li>
+              <>
+                <li>
+                  <Link href="/admin" className="mobile-nav-link" onClick={closeMobile}>
+                    Owner dashboard
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/admin/products" className="mobile-nav-link" onClick={closeMobile}>
+                    Manage products
+                  </Link>
+                </li>
+              </>
             )}
             <li>
               <button

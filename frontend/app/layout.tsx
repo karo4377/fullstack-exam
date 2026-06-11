@@ -1,15 +1,15 @@
 import type { ReactNode } from 'react';
-import { DM_Sans } from 'next/font/google';
+import { Outfit, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 
-const dmSans = DM_Sans({
+const outfit = Outfit({
   subsets: ['latin'],
   variable: '--font-sans',
   weight: ['400', '500', '600'],
 });
 
-const dmSansDisplay = DM_Sans({
+const playfair = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-display',
   weight: ['500', '600', '700'],
@@ -20,7 +20,7 @@ export const dynamic = 'force-dynamic';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${dmSansDisplay.variable}`}>
+    <html lang="en" className={`${outfit.variable} ${playfair.variable}`}>
       <body>
         <Providers>{children}</Providers>
       </body>
