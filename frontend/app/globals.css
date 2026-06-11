@@ -2719,11 +2719,22 @@ a.product-detail-category:hover {
   background: var(--color-accent-soft);
 }
 
-.admin-table .actions,
 .admin-product-actions {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+}
+
+.admin-table .actions,
+.admin-table .admin-product-actions {
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+}
+
+.admin-table td:has(.admin-product-actions) {
+  width: 1%;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 .admin-table-code {
