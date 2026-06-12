@@ -1,13 +1,21 @@
+import { ensureCsrfToken } from './csrf';
+
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 export async function api<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const method = (options.method ?? 'GET').toUpperCase();
   const hasBody = options.body != null && options.body !== '';
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string>),
   };
+  if (MUTATING_METHODS.has(method)) {
+    headers['X-CSRF-Token'] = await ensureCsrfToken();
+  }
   if (hasBody && !headers['Content-Type']) {
     headers['Content-Type'] = 'application/json';
   }
@@ -136,6 +144,9 @@ export const admin = {
     const res = await fetch(url, {
       method: 'POST',
       credentials: 'include',
+      headers: {
+        'X-CSRF-Token': await ensureCsrfToken(),
+      },
       body: formData,
     });
     if (!res.ok) {

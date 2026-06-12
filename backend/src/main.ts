@@ -5,14 +5,22 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import { existsSync, mkdirSync } from 'fs';
+import helmet from 'helmet';
 import { join } from 'path';
 import { AppModule } from './app.module';
+import { getAllowedOrigins, isLocalDevOrigin } from './security/allowed-origins';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const uploadsPath = join(process.cwd(), 'uploads');
   if (!existsSync(uploadsPath)) mkdirSync(uploadsPath, { recursive: true });
   app.use('/uploads', express.static(uploadsPath));
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
@@ -21,16 +29,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-  const devOrigins = [
-    'http://localhost:3000',
-    'http://localhost:3002',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3002',
-  ];
-  const allowedOrigins = new Set([frontendUrl, ...devOrigins]);
-  const isLocalDevOrigin = (origin: string) =>
-    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  const allowedOrigins = getAllowedOrigins();
 
   app.enableCors({
     origin: (origin, cb) => {

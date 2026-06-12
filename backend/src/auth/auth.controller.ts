@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import {
   Body,
   Controller,
@@ -22,6 +23,7 @@ import { RegisterDto } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { authCookieOptions } from './auth-cookie';
+import { csrfCookieOptions, CSRF_COOKIE_NAME } from '../security/csrf';
 import { FacebookAuthGuard } from './facebook-auth.guard';
 import { GoogleAuthGuard } from './google-auth.guard';
 import { buildDisplayName, normalizeOptional, publicUserSelect, splitFullName } from '../users/user-profile.util';
@@ -43,6 +45,13 @@ export class AuthController {
     if (user.role === 'ADMIN') path = '/admin';
     else if (isNew) path = '/account/profile';
     res.redirect(`${frontendUrl}${path}`);
+  }
+
+  @Get('csrf')
+  csrf(@Res({ passthrough: true }) res: Response) {
+    const token = randomBytes(32).toString('hex');
+    res.cookie(CSRF_COOKIE_NAME, token, csrfCookieOptions());
+    return { csrfToken: token };
   }
 
   @Post('register')
