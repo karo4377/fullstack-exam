@@ -3,12 +3,12 @@ describe('Smoke — static pages', () => {
     cy.visit('/');
     cy.get('.site-brand img').should('have.attr', 'alt', 'Tiny Frames');
     cy.contains('h1', 'Art for little walls').should('be.visible');
-    cy.contains('a', 'Shop prints').should('have.attr', 'href', '/products');
+    cy.contains('a', 'Shop the collection').should('have.attr', 'href', '/products');
   });
 
   it('navigates to the product list', () => {
     cy.visit('/');
-    cy.contains('a', 'Shop prints').click();
+    cy.contains('a', 'Shop the collection').click();
     cy.location('pathname').should('eq', '/products');
     cy.contains('h1', 'Shop posters').should('be.visible');
   });

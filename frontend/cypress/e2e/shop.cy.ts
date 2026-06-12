@@ -24,7 +24,7 @@ describe('Shop — requires API', () => {
   it('filters products with search', () => {
     cy.visit('/products');
     cy.get('article.product-card', { timeout: 20_000 }).should('have.length.at.least', 1);
-    cy.get('.products-filters input[type="search"]').type('cat');
+    cy.get('.products-search-input').type('cat');
     cy.get('article.product-card').should('have.length.at.least', 1);
   });
 });
