@@ -41,7 +41,6 @@ jobs:
       JWT_SECRET: ci-cypress-secret
       FRONTEND_URL: http://localhost:3000
       NEXT_PUBLIC_API_URL: http://localhost:3001
-      PORT: '3001'
 
     steps:
       - name: Checkout
@@ -68,6 +67,7 @@ jobs:
         working-directory: backend
         env:
           NODE_ENV: production
+          PORT: '3001'
         run: npm run start &
 
       - name: Wait for API
@@ -92,6 +92,7 @@ jobs:
         working-directory: frontend
         env:
           NODE_ENV: production
+          PORT: '3000'
         run: npm start &
 
       - name: Wait for frontend
@@ -113,5 +114,7 @@ jobs:
           install: false
           record: true
         env:
+          CYPRESS_API_URL: http://localhost:3001
+          CYPRESS_BASE_URL: http://localhost:3000
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

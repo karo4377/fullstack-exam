@@ -2,9 +2,8 @@ import { defineConfig } from 'cypress';
 
 export default defineConfig({
   projectId: 'nj41qj',
-  // Cypress 15+: allow reading env.API_URL in specs via Cypress.env()
-  allowCypressEnv: true,
-  env: {
+  allowCypressEnv: false,
+  expose: {
     API_URL: process.env.CYPRESS_API_URL || 'http://localhost:3001',
   },
   e2e: {

@@ -1,5 +1,7 @@
 describe('Admin navigation', () => {
   it('shows greeting and dashboard link after admin login', () => {
+    const api = Cypress.expose('API_URL') || 'http://localhost:3001';
+    cy.request('GET', `${api}/auth/csrf`);
     cy.visit('/login');
     cy.get('.auth-box form').within(() => {
       cy.get('#login-email').clear().type('admin@artshop.local');

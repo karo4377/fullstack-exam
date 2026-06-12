@@ -1,6 +1,6 @@
 describe('Auth — requires API', () => {
   beforeEach(() => {
-    const api = Cypress.env('API_URL') || 'http://localhost:3001';
+    const api = Cypress.expose('API_URL') || 'http://localhost:3001';
     cy.request({
       url: `${api}/products`,
       failOnStatusCode: false,

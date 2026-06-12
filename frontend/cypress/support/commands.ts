@@ -1,11 +1,21 @@
 /// <reference types="cypress" />
 
+function apiBase() {
+  return Cypress.expose('API_URL') || 'http://localhost:3001';
+}
+
+/** Prime the API CSRF cookie before browser mutations (login, cart, etc.). */
+function prefetchCsrf() {
+  cy.request('GET', `${apiBase()}/auth/csrf`).its('body.csrfToken').should('be.a', 'string');
+}
+
 Cypress.Commands.add(
   'loginAsCustomer',
   (email = 'customer@artshop.local', password = 'customer123') => {
     cy.session(
       ['customer', email],
       () => {
+        prefetchCsrf();
         cy.visit('/login');
         cy.get('.auth-box form').within(() => {
           cy.get('#login-email').clear().type(email);
